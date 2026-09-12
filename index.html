@@ -10,9 +10,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Poker Trainer">
 <title>Poker Trainer</title>
-<link rel="manifest" id="manifestLink">
-<link rel="apple-touch-icon" id="appleIconLink">
-<link rel="icon" id="faviconLink">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
 <style>
 :root{
   --bg:#f2f2f7;
@@ -360,6 +360,8 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .seg-ctrl button{flex:1;padding:11px 8px;border-radius:8px;background:transparent;color:var(--text-dim);font-size:13px;font-weight:700;letter-spacing:.1px;transition:background .15s ease,color .15s ease}
 .seg-ctrl button.on{background:var(--bg2);color:var(--accent);box-shadow:var(--shadow-light)}
 .seg-ctrl button:active{transform:scale(.98)}
+.mini-btn{flex-shrink:0;padding:9px 16px;border-radius:9px;background:rgba(0,122,255,.1);color:var(--accent);font-size:13px;font-weight:700}
+.mini-btn:disabled{opacity:.5}
 .danger-btn{width:100%;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.25);color:var(--fold);padding:14px;border-radius:12px;font-weight:600;min-height:var(--tap)}
 .danger-btn:active{background:rgba(255,59,48,.16)}
 
@@ -727,6 +729,13 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
           </div>
           <div class="pos-stats-grid" id="posStatsGrid"></div>
         </div>
+        <div class="setting-row">
+          <div>
+            <div class="label">Version</div>
+            <div class="desc" id="buildDesc">—</div>
+          </div>
+          <button class="mini-btn" id="updateBtn" onclick="checkForUpdate()">Check</button>
+        </div>
         <button class="danger-btn" onclick="resetStats()">Reset all stats</button>
       </div>
     </div>
@@ -810,6 +819,11 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 
 <script>
 'use strict';
+
+/* Bump this to ship an update. It is the service worker's version too (it
+   goes on the registration URL), so a new value makes the browser install a
+   fresh worker, drop the old cache and reload whatever is open. */
+const BUILD = '2026.09.12';
 
 /* ============================================================
    CONSTANTS
@@ -2580,6 +2594,9 @@ function renderSettings(){
       : '6 seats — typical online cash format';
   }
 
+  const buildDesc = document.getElementById('buildDesc');
+  if(buildDesc) buildDesc.textContent = BUILD;
+
   const grid = document.getElementById('posStatsGrid');
   grid.innerHTML = '';
   POSITIONS.forEach(pos => {
@@ -3174,99 +3191,62 @@ function runEquity(){
 /* ============================================================
    PWA: MANIFEST + ICONS + SERVICE WORKER
 ============================================================ */
-function generateIcon(size){
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const ctx = c.getContext('2d');
-  ctx.fillStyle = '#007aff';
-  const r = size * 0.18;
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.arcTo(size, 0, size, size, r);
-  ctx.arcTo(size, size, 0, size, r);
-  ctx.arcTo(0, size, 0, 0, r);
-  ctx.arcTo(0, 0, size, 0, r);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold ' + Math.round(size * 0.32) + 'px -apple-system,Helvetica,Arial,sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('♠', size / 2, size * 0.42);
-  ctx.font = 'bold ' + Math.round(size * 0.22) + 'px -apple-system,Helvetica,Arial,sans-serif';
-  ctx.fillText('PT', size / 2, size * 0.74);
-  return c.toDataURL('image/png');
-}
-
-function installManifest(){
-  const icon192 = generateIcon(192);
-  const icon512 = generateIcon(512);
-  const manifest = {
-    name: 'Poker Trainer',
-    short_name: 'PokerTrainer',
-    description: 'Train preflop ranges, pot odds, and postflop basics — offline.',
-    start_url: './',
-    scope: './',
-    display: 'standalone',
-    orientation: 'portrait',
-    background_color: '#f2f2f7',
-    theme_color: '#f2f2f7',
-    icons: [
-      {src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable'},
-      {src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable'}
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-  document.getElementById('manifestLink').href = URL.createObjectURL(blob);
-  document.getElementById('appleIconLink').href = icon192;
-  document.getElementById('faviconLink').href = icon192;
-}
+let swRegistration = null;
 
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol === 'file:') return;
-  const swCode = `
-    const CACHE = 'poker-trainer-v5';
-    self.addEventListener('install', e => {
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(
-        caches.keys().then(keys =>
-          Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-        ).then(() => self.clients.claim())
-      );
-    });
-    // Network-first for HTML so code updates always reach the user;
-    // cache-first for everything else (images, fonts, etc.).
-    self.addEventListener('fetch', e => {
-      if(e.request.method !== 'GET') return;
-      const isHTML = e.request.mode === 'navigate' ||
-                     (e.request.headers.get('accept') || '').includes('text/html');
-      e.respondWith(
-        caches.open(CACHE).then(cache => {
-          if(isHTML){
-            return fetch(e.request).then(resp => {
-              if(resp && resp.status === 200){ cache.put(e.request, resp.clone()); }
-              return resp;
-            }).catch(() => cache.match(e.request, {ignoreSearch:true}));
-          }
-          return cache.match(e.request, {ignoreSearch:true}).then(hit => {
-            const network = fetch(e.request).then(resp => {
-              if(resp && resp.status === 200 && resp.type === 'basic'){
-                cache.put(e.request, resp.clone());
-              }
-              return resp;
-            }).catch(() => hit);
-            return hit || network;
-          });
-        })
-      );
-    });
-  `;
-  const blob = new Blob([swCode], {type: 'application/javascript'});
-  const url = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(url, {scope: './'}).catch(() => {});
+
+  // The first worker to claim the page is an install, not an update, and must
+  // not reload. Every claim after that is a new version taking over. Tracked
+  // as it happens rather than snapshotted at startup: the session that does
+  // the install starts uncontrolled, and snapshotting that left it never
+  // reloading again for the rest of its life.
+  let hasController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(!hasController){ hasController = true; return; }
+    if(reloading) return;
+    reloading = true;
+    location.reload();
+  });
+
+  navigator.serviceWorker.register('./sw.js?v=' + encodeURIComponent(BUILD), {scope: './'})
+    .then(reg => {
+      swRegistration = reg;
+      // An installed app can sit open for days, so look for a new version
+      // every time it comes back to the foreground.
+      document.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    })
+    .catch(err => console.error('Service worker registration failed:', err));
+}
+
+function checkForUpdate(){
+  const btn = document.getElementById('updateBtn');
+  const desc = document.getElementById('buildDesc');
+  const done = msg => {
+    if(desc) desc.textContent = msg;
+    if(btn){ btn.disabled = false; btn.textContent = 'Check'; }
+  };
+  if(!swRegistration){
+    done(BUILD + (location.protocol === 'file:' ? ' · needs to be served over http' : ' · no service worker'));
+    return;
+  }
+  if(btn){ btn.disabled = true; btn.textContent = 'Checking…'; }
+  swRegistration.update()
+    .then(() => setTimeout(() => {
+      // A worker that found an update installs and takes over, which reloads
+      // the page. Still being here with nothing waiting means we are current.
+      if(swRegistration.waiting){
+        swRegistration.waiting.postMessage('skip-waiting');
+        done('Updating…');
+      }else{
+        done(BUILD + ' · up to date');
+      }
+    }, 800))
+    .catch(() => done(BUILD + ' · could not check'));
 }
 
 /* ============================================================
@@ -3274,7 +3254,6 @@ function registerSW(){
 ============================================================ */
 refreshTableSize();
 rebuildRangeSets();
-installManifest();
 registerSW();
 updateHomeStats();
 nav('home');

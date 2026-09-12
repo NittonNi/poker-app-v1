@@ -61,12 +61,30 @@ one, and a suited hand is never played weaker than the same offsuit hand.
 
 ## Tech
 
-- Pure HTML/CSS/JS, single file, no frameworks, no build step.
+- Pure HTML/CSS/JS, no frameworks, no build step — the whole app is `index.html`.
 - Light, iOS-flavoured design system driven by CSS custom properties.
-- Service worker registered inline via Blob URL for offline support.
-- Web App Manifest generated at runtime (192/512 PNG icons drawn on `<canvas>`).
+- Service worker for offline use, with the page itself always fetched from the
+  network so a deploy is never stuck behind a cache.
 - Cards dealt client-side with `crypto.getRandomValues` + Fisher–Yates shuffle.
 - Hand evaluator ranks any 7-card board for the equity simulator.
+
+## Deploying
+
+Bump `BUILD` at the top of the script in `index.html`, then push:
+
+```js
+const BUILD = '2026.09.12';
+```
+
+That value goes on the service worker's registration URL (`./sw.js?v=…`), so a
+new one makes the browser install a fresh worker, drop the previous cache and
+reload anything that is open. It is the only thing to change — nothing else
+carries a version.
+
+The page is fetched network-first with `cache: 'no-store'`, so an update lands
+even though GitHub Pages puts a `max-age` on every file; the cached copy only
+serves when you are offline. Settings shows the running build and has a
+**Check** button that forces the update check by hand.
 
 ## Running locally
 
@@ -91,7 +109,13 @@ Then open `http://localhost:8080`.
 
 ```
 .
-├── index.html      # the entire app (HTML + CSS + JS + manifest + SW)
+├── index.html                # the entire app (HTML + CSS + JS)
+├── sw.js                     # service worker: offline shell, update handling
+├── manifest.webmanifest      # PWA manifest
+├── icon-192.png              # app icons
+├── icon-512.png
+├── icon-512-maskable.png
+├── apple-touch-icon.png
 ├── README.md
 └── .gitignore
 ```
