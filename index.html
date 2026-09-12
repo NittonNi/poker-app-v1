@@ -226,6 +226,8 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .comp-box .v{font-size:22px;font-weight:800;color:var(--accent);margin-top:4px}
 .comp-box.winner{border-color:var(--raise);background:rgba(47,168,79,.08)}
 .comp-box.winner .v{color:var(--raise)}
+.comp-box.loser{border-color:var(--fold);background:rgba(255,59,48,.06)}
+.comp-box.loser .v{color:var(--fold)}
 
 .subselect{display:flex;gap:10px;padding:6px 16px 0}
 .sub-pill{flex:1;padding:10px;border-radius:10px;background:var(--surface);border:1px solid var(--surface-border);text-align:center;font-size:13px;font-weight:600;color:var(--text-dim)}
@@ -2027,12 +2029,14 @@ function showM2Feedback(correct, given){
   body.appendChild(breakdown);
 
   if(cur.subMode === 'B'){
+    // Colour the equity, not the requirement: a green "pot odds need" box on a
+    // hand you are supposed to fold reads as though the number were good news.
     const cmp = el('div', {class:'comparison'}, []);
-    cmp.appendChild(el('div', {class:'comp-box' + (cur.correctDec === 'fold' ? ' winner' : '')}, [
+    cmp.appendChild(el('div', {class:'comp-box'}, [
       el('div', {class:'l'}, ['Pot odds need']),
       el('div', {class:'v'}, [cur.correctPct.toFixed(1) + '%'])
     ]));
-    cmp.appendChild(el('div', {class:'comp-box' + (cur.correctDec === 'call' ? ' winner' : '')}, [
+    cmp.appendChild(el('div', {class:'comp-box ' + (cur.correctDec === 'call' ? 'winner' : 'loser')}, [
       el('div', {class:'l'}, ['Your equity']),
       el('div', {class:'v'}, [cur.equity + '%'])
     ]));
