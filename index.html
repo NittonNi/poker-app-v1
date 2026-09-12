@@ -538,7 +538,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
             <div class="mc-icon">🎯</div>
           </div>
           <div class="title">Preflop Ranges</div>
-          <div class="desc">Fast-paced raise / call / fold drilling by position.</div>
+          <div class="desc">Fast-paced drilling: opens, 3-bets, 4-bets and 5-bets by position.</div>
         </div>
         <div class="meta">
           <span id="m1-count">0 hands</span>
@@ -568,7 +568,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
             <div class="mc-icon">📊</div>
           </div>
           <div class="title">Ranges Explorer</div>
-          <div class="desc">Compare opening ranges side-by-side. Switch between 6-max and full ring.</div>
+          <div class="desc">Open, 3-bet, 4-bet and 5-bet ranges side-by-side. Switch between 6-max and full ring.</div>
         </div>
         <div class="meta">
           <span id="ranges-meta">Interactive 13×13 grid</span>
@@ -666,6 +666,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
       <div class="title">Ranges Explorer</div>
       <div class="icon-btn" style="visibility:hidden">·</div>
     </div>
+    <div class="compare-toggle" id="scenarioRow"></div>
     <div class="compare-toggle">
       <button class="ct-btn on" id="mode-single" onclick="setRangeMode('single')">Single</button>
       <button class="ct-btn" id="mode-compare" onclick="setRangeMode('compare')">Compare 2</button>
@@ -757,7 +758,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
       <div class="overlay-handle"></div>
       <div class="overlay-title">Range — <span id="gridOverlayPos">BTN</span></div>
       <button class="overlay-close" onclick="closeOverlay(null,'gridOverlay')">×</button>
-      <div class="grid-legend">
+      <div class="grid-legend" id="gridOverlayLegend">
         <div class="legend-item"><div class="legend-dot raise"></div>Raise</div>
         <div class="legend-item"><div class="legend-dot call"></div>Call/Defend</div>
         <div class="legend-item"><div class="legend-dot fold"></div>Fold</div>
@@ -923,34 +924,132 @@ const RANGE_DEF_9MAX = {
       'AQo','AJo','ATo','KQo','KJo','KTo','QJo','QTo','JTo'] }
 };
 
-let RANGE_DEF = RANGE_DEF_6MAX;
-let RANGE_SETS = {};
-function rebuildRangeSets(){
-  RANGE_DEF = currentTableSize() === 'full' ? RANGE_DEF_9MAX : RANGE_DEF_6MAX;
-  RANGE_SETS = {};
-  for(const pos in RANGE_DEF){
-    RANGE_SETS[pos] = { raise: new Set(RANGE_DEF[pos].raise), call: new Set(RANGE_DEF[pos].call) };
+/* ============================================================
+   RANGES — vs Open (3-bet/call/fold), vs 3-bet (4-bet/call/fold),
+   vs 4-bet (5-bet/call/fold). Tiered by position group rather than
+   the exact opener's seat — a deliberate simplification (this is a
+   trainer, not a solver), kept internally consistent with the
+   RFI charts above and with the Glossary's own description of
+   3-bet/4-bet/5-bet ranges.
+============================================================ */
+const VS_OPEN_TIERS = {
+  EARLY_MID: {
+    raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
+    call: ['TT','99','88','77','66','55','AJs','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s','AQo','AJo']
+  },
+  LATE: {
+    raise: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','AQo','AJs','KQs','A5s','A4s','A3s','K9s','Q9s','JTs','T9s','98s'],
+    call: ['99','88','77','66','55','44','ATs','A9s','A8s','A7s','A6s','A2s','KJs','KTs','K8s','QJs','QTs','J9s','T8s','87s','76s','65s','54s','AJo','ATo','KQo','KJo']
   }
-}
-// Seed with 6-max defaults so RANGE_SETS is populated before state loads.
-// rebuildRangeSets() will run again at end-of-script init once state is ready.
-for(const pos in RANGE_DEF_6MAX){
-  RANGE_SETS[pos] = { raise: new Set(RANGE_DEF_6MAX[pos].raise), call: new Set(RANGE_DEF_6MAX[pos].call) };
+};
+
+const VS_3BET_TIERS = {
+  EARLY: {
+    raise: ['AA','KK','QQ','AKs','AKo'],
+    call: ['JJ','TT','99','AQs','AQo','AJs','KQs']
+  },
+  LATE: {
+    raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
+    call: ['TT','99','88','ATs','AJs','KQs','KJs','QJs','AQo','KQo']
+  },
+  BLIND: {
+    raise: ['AA','KK','QQ','AKs','AKo'],
+    call: ['JJ','TT','99','AQs','AJs','KQs','AQo']
+  }
+};
+
+const VS_4BET_UNIVERSAL = {
+  raise: ['AA','KK','AKs','AKo'],
+  call: ['QQ','JJ']
+};
+
+// Positions that can legally reach each scenario. BB can never open (folded
+// to BB just ends the hand), and the very first seat to act can never be
+// facing anything before it.
+function canOpenPosition(p){ return p !== 'BB'; }
+function canFaceBeforePosition(p){ return p !== POSITIONS[0]; }
+function applicablePositions(scenario){
+  if(scenario === 'open' || scenario === 'vs3bet') return POSITIONS.filter(canOpenPosition);
+  return POSITIONS.filter(canFaceBeforePosition); // vsOpen, vs4bet
 }
 
-function decisionFor(hand, position){
-  const r = RANGE_SETS[position];
+function vsOpenTier(position){
+  if(position === 'SB') return 'SB';
+  if(position === 'BB') return 'BB';
+  if(['HJ','CO','BTN'].includes(position)) return 'LATE';
+  return 'EARLY_MID';
+}
+function vs3betTier(position){
+  if(position === 'SB') return 'BLIND';
+  if(['HJ','CO','BTN'].includes(position)) return 'LATE';
+  return 'EARLY';
+}
+
+const SCENARIO_META = {
+  open:   { key:'open',   label:'Open',    short:'Open',   raiseLabel:'Raise', tileAbbrev:'R',  hasCall:false, blurb:'First in, nobody has entered the pot — raise or fold.' },
+  vsOpen: { key:'vsOpen', label:'vs Open', short:'3-Bet',  raiseLabel:'3-Bet', tileAbbrev:'3B', hasCall:true,   blurb:'Someone opened before you — 3-bet, call, or fold.' },
+  vs3bet: { key:'vs3bet', label:'vs 3-Bet',short:'4-Bet',  raiseLabel:'4-Bet', tileAbbrev:'4B', hasCall:true,   blurb:'You opened and got 3-bet — 4-bet, call, or fold.' },
+  vs4bet: { key:'vs4bet', label:'vs 4-Bet',short:'5-Bet',  raiseLabel:'5-Bet', tileAbbrev:'5B', hasCall:true,   blurb:'You 3-bet and got 4-bet — jam (5-bet), call, or fold.' }
+};
+const SCENARIO_ORDER = ['open','vsOpen','vs3bet','vs4bet'];
+
+function actionLabel(decision, meta){
+  if(decision === 'raise') return meta.raiseLabel;
+  if(decision === 'call') return 'Call';
+  return 'Fold';
+}
+
+let RANGE_DEF = RANGE_DEF_6MAX;
+let SCENARIO_SETS = {};
+function buildScenarioSets(){
+  const open = {};
+  applicablePositions('open').forEach(pos => {
+    open[pos] = { raise: new Set(RANGE_DEF[pos].raise), call: new Set() };
+  });
+
+  const vsOpen = {};
+  applicablePositions('vsOpen').forEach(pos => {
+    const tier = vsOpenTier(pos);
+    const def = (tier === 'SB' || tier === 'BB') ? RANGE_DEF[tier] : VS_OPEN_TIERS[tier];
+    vsOpen[pos] = { raise: new Set(def.raise), call: new Set(def.call) };
+  });
+
+  const vs3bet = {};
+  applicablePositions('vs3bet').forEach(pos => {
+    const def = VS_3BET_TIERS[vs3betTier(pos)];
+    vs3bet[pos] = { raise: new Set(def.raise), call: new Set(def.call) };
+  });
+
+  const vs4bet = {};
+  applicablePositions('vs4bet').forEach(pos => {
+    vs4bet[pos] = { raise: new Set(VS_4BET_UNIVERSAL.raise), call: new Set(VS_4BET_UNIVERSAL.call) };
+  });
+
+  SCENARIO_SETS = { open, vsOpen, vs3bet, vs4bet };
+}
+function rebuildRangeSets(){
+  RANGE_DEF = currentTableSize() === 'full' ? RANGE_DEF_9MAX : RANGE_DEF_6MAX;
+  buildScenarioSets();
+}
+// Seed with 6-max defaults so the lookups are populated before state loads.
+// rebuildRangeSets() will run again at end-of-script init once state is ready.
+buildScenarioSets();
+
+function decisionFor(hand, position, scenario){
+  const sets = SCENARIO_SETS[scenario || 'open'];
+  const r = sets && sets[position];
+  if(!r) return 'fold';
   if(r.raise.has(hand)) return 'raise';
   if(r.call.has(hand)) return 'call';
   return 'fold';
 }
 
-function rangeStats(position){
+function rangeStats(position, scenario){
   let raise = 0, call = 0;
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position);
+      const d = decisionFor(h, position, scenario);
       const weight = i === j ? 6 : (i < j ? 4 : 12);
       if(d === 'raise') raise += weight;
       else if(d === 'call') call += weight;
@@ -1016,10 +1115,6 @@ function dealHand(){
 function dealFlop(){
   const deck = shuffleFY(buildDeck());
   return [deck[0], deck[1], deck[2]];
-}
-
-function pickPosition(){
-  return POSITIONS[cryptoRand(POSITIONS.length)];
 }
 
 /* ============================================================
@@ -1330,25 +1425,68 @@ function updateHomeStats(){
 /* ============================================================
    MODULE 1 — PREFLOP
 ============================================================ */
+const M1_SCENARIO_WEIGHTS = { open: 4, vsOpen: 3, vs3bet: 2, vs4bet: 1 };
+function pickM1Scenario(){
+  const bag = [];
+  for(const k in M1_SCENARIO_WEIGHTS){ for(let i = 0; i < M1_SCENARIO_WEIGHTS[k]; i++) bag.push(k); }
+  return bag[cryptoRand(bag.length)];
+}
+
+const SEAT_OPEN_WEIGHTS = {'UTG':1,'UTG+1':1,'UTG+2':1,'LJ':1,'MP':2,'HJ':3,'CO':5,'BTN':6,'SB':2,'BB':1};
+function weightedPositionPick(list){
+  const bag = [];
+  list.forEach(p => { const w = SEAT_OPEN_WEIGHTS[p] || 1; for(let k = 0; k < w; k++) bag.push(p); });
+  return bag.length ? bag[cryptoRand(bag.length)] : null;
+}
+
+// Builds the sequence of seat actions that happen before hero's turn, so the
+// felt animation and the training scenario always agree with each other —
+// including for SB, which used to be told it was "facing an open" in its
+// feedback text while the table showed nobody had raised.
+function buildScript(scenario, heroPosition){
+  const heroIdx = POKER_ORDER.indexOf(heroPosition);
+  const before = POKER_ORDER.slice(0, heroIdx);
+  const after = POKER_ORDER.slice(heroIdx + 1);
+
+  if(scenario === 'open'){
+    return { steps: before.map(p => ({pos:p, action:'fold', verb:'folds'})), facing: null };
+  }
+  if(scenario === 'vsOpen'){
+    const opener = weightedPositionPick(before);
+    const steps = before.map(p => p === opener
+      ? {pos:p, action:'raise', verb:'raises'}
+      : {pos:p, action:'fold', verb:'folds'});
+    return { steps, facing: opener };
+  }
+  if(scenario === 'vs3bet'){
+    const pool = after.length ? after : POKER_ORDER.filter(p => p !== heroPosition);
+    const threeBettor = weightedPositionPick(pool);
+    const steps = before.map(p => ({pos:p, action:'fold', verb:'folds'}));
+    steps.push({pos:heroPosition, action:'raise', verb:'raises', silent:true});
+    steps.push({pos:threeBettor, action:'raise', verb:'3-bets'});
+    return { steps, facing: threeBettor };
+  }
+  // vs4bet: an earlier position opened, hero 3-bet (silently, already happened), opener 4-bets.
+  const pool = before.length ? before : POKER_ORDER.filter(p => p !== heroPosition);
+  const opener = weightedPositionPick(pool);
+  const steps = before.map(p => p === opener
+    ? {pos:p, action:'raise', verb:'raises'}
+    : {pos:p, action:'fold', verb:'folds'});
+  steps.push({pos:heroPosition, action:'raise', verb:'raises', silent:true});
+  steps.push({pos:opener, action:'raise', verb:'4-bets'});
+  return { steps, facing: opener };
+}
+
 function newHandM1(){
   if(session.pendingTimeout){ clearTimeout(session.pendingTimeout); session.pendingTimeout = null; }
   const [c1, c2] = dealHand();
   const hand = notation(c1, c2);
-  const position = pickPosition();
-  const correct = decisionFor(hand, position);
-  let opener = null;
-  if(position === 'BB'){
-    const idx = POKER_ORDER.indexOf('BB');
-    const weights = {'UTG':1,'UTG+1':1,'MP':2,'HJ':3,'CO':5,'BTN':6,'SB':2};
-    const bag = [];
-    for(let i = 0; i < idx; i++){
-      const p = POKER_ORDER[i];
-      const w = weights[p] || 1;
-      for(let k = 0; k < w; k++) bag.push(p);
-    }
-    opener = bag[cryptoRand(bag.length)];
-  }
-  session.current = {type:'m1', cards:[c1,c2], hand, position, correct, opener};
+  const scenario = pickM1Scenario();
+  const positions = applicablePositions(scenario);
+  const position = positions[cryptoRand(positions.length)];
+  const correct = decisionFor(hand, position, scenario);
+  const script = buildScript(scenario, position);
+  session.current = {type:'m1', cards:[c1,c2], hand, position, scenario, correct, script};
   session.answered = false;
   renderM1();
   updateM1Live();
@@ -1356,12 +1494,13 @@ function newHandM1(){
 
 function renderM1(){
   const cur = session.current;
+  const meta = SCENARIO_META[cur.scenario];
   const body = document.getElementById('m1Body');
   body.innerHTML = '';
 
   const posTag = el('div', {class:'position-tag', id:'m1PosTag'}, [
     el('span', {class:'dot'}, []),
-    'You are ' + cur.position
+    'You are ' + cur.position + (cur.scenario === 'open' ? '' : ' — ' + meta.label)
   ]);
   body.appendChild(posTag);
 
@@ -1384,14 +1523,18 @@ function renderM1(){
   ]);
   body.appendChild(handBox);
 
-  const actions = el('div', {class:'actions', id:'m1Actions'}, [
-    el('button', {class:'act fold', onclick: () => answerM1('fold')}, ['Fold']),
-    el('button', {class:'act call', onclick: () => answerM1('call')}, ['Call']),
-    el('button', {class:'act raise', onclick: () => answerM1('raise')}, ['Raise'])
-  ]);
+  const actionButtons = [el('button', {class:'act fold', onclick: () => answerM1('fold')}, ['Fold'])];
+  if(meta.hasCall) actionButtons.push(el('button', {class:'act call', onclick: () => answerM1('call')}, ['Call']));
+  actionButtons.push(el('button', {class:'act raise', onclick: () => answerM1('raise')}, [meta.raiseLabel]));
+
+  const actions = el('div', {
+    class:'actions',
+    id:'m1Actions',
+    style: meta.hasCall ? '' : 'grid-template-columns:1fr 1fr'
+  }, actionButtons);
   body.appendChild(actions);
 
-  setupPokerTable(cur.position, cur.opener);
+  setupPokerTable(cur.position, cur.script);
 }
 
 function seatCoords(slot, total){
@@ -1402,7 +1545,7 @@ function seatCoords(slot, total){
   return {x: cx, y: cy};
 }
 
-function setupPokerTable(heroPosition, opener){
+function setupPokerTable(heroPosition, script){
   const felt = document.getElementById('tableFelt');
   if(!felt) return;
   felt.querySelectorAll('.seat,.btn-marker,.flying-chip').forEach(e => e.remove());
@@ -1435,7 +1578,7 @@ function setupPokerTable(heroPosition, opener){
 
   const tape = document.getElementById('actionTape');
   if(tape) tape.innerHTML = 'Blinds posted, cards dealt...';
-  animatePreflopAction(heroPosition, opener);
+  animatePreflopAction(heroPosition, script);
 }
 
 function clearAnimTimeouts(){
@@ -1445,48 +1588,46 @@ function clearAnimTimeouts(){
   session.animTimeouts = [];
 }
 
-function fastForwardAnimation(heroPosition, opener){
-  const heroIdx = POKER_ORDER.indexOf(heroPosition);
-  for(let i = 0; i < heroIdx; i++){
-    const pos = POKER_ORDER[i];
-    const seat = document.querySelector(`.seat[data-pos="${pos}"]`);
-    if(!seat) continue;
-    if(pos === opener) seat.classList.add('raised');
-    else seat.classList.add('folded');
-  }
+function fastForwardAnimation(heroPosition, script){
+  script.steps.forEach(s => {
+    const seat = document.querySelector(`.seat[data-pos="${s.pos}"]`);
+    if(!seat) return;
+    seat.classList.add(s.action === 'raise' ? 'raised' : 'folded');
+  });
   const hero = document.querySelector('.seat.hero');
   if(hero) hero.classList.add('acting');
 }
 
-function animatePreflopAction(heroPosition, opener){
+function animatePreflopAction(heroPosition, script){
   clearAnimTimeouts();
-  const heroIdx = POKER_ORDER.indexOf(heroPosition);
   const tape = document.getElementById('actionTape');
   let delay = 180;
   const step = 90;
+  let lastVerb = null;
 
-  for(let i = 0; i < heroIdx; i++){
-    const pos = POKER_ORDER[i];
-    const isOpener = pos === opener;
+  script.steps.forEach(s => {
+    if(s.silent){
+      // Hero's own earlier action in this line (e.g. the open before a
+      // vs-3-bet spot) — reflect it on the felt instantly, no tape line.
+      const seat = document.querySelector(`.seat[data-pos="${s.pos}"]`);
+      if(seat) seat.classList.add(s.action === 'raise' ? 'raised' : 'folded');
+      return;
+    }
+    lastVerb = s.verb;
     session.animTimeouts.push(setTimeout(() => {
-      const seat = document.querySelector(`.seat[data-pos="${pos}"]`);
+      const seat = document.querySelector(`.seat[data-pos="${s.pos}"]`);
       if(!seat) return;
-      if(isOpener){
-        seat.classList.add('raised');
-        if(tape) tape.innerHTML = `<strong>${pos}</strong> raises`;
-      }else{
-        seat.classList.add('folded');
-        if(tape) tape.innerHTML = `<strong>${pos}</strong> folds`;
-      }
+      seat.classList.add(s.action === 'raise' ? 'raised' : 'folded');
+      if(tape) tape.innerHTML = `<strong>${s.pos}</strong> ${s.verb}`;
     }, delay));
     delay += step;
-  }
+  });
 
   session.animTimeouts.push(setTimeout(() => {
     const hero = document.querySelector('.seat.hero');
     if(hero) hero.classList.add('acting');
     if(tape){
-      if(opener) tape.innerHTML = `<strong>${opener}</strong> raised — your action`;
+      if(script.facing) tape.innerHTML = `<strong>${script.facing}</strong> ${lastVerb || 'raises'} — your action`;
       else if(heroPosition === 'BB' || heroPosition === 'SB') tape.innerHTML = `Folded to you — your action`;
       else tape.innerHTML = `Your turn to act`;
     }
@@ -1515,10 +1656,10 @@ function answerM1(decision){
   session.answered = true;
   const cur = session.current;
   const correct = decision === cur.correct;
-  recordAnswer('m1', correct, {hand: cur.hand, position: cur.position, given: decision, correctDec: cur.correct});
+  recordAnswer('m1', correct, {hand: cur.hand, position: cur.position, given: decision, correctDec: cur.correct, scenario: cur.scenario});
 
   clearAnimTimeouts();
-  fastForwardAnimation(cur.position, cur.opener);
+  fastForwardAnimation(cur.position, cur.script);
 
   const body = document.getElementById('m1Body');
   const actionsEl = document.getElementById('m1Actions');
@@ -1555,40 +1696,46 @@ function answerM1(decision){
 
 function buildCompactFeedback(decision, correct, cur){
   const cat = handCategory(cur.hand);
+  const meta = SCENARIO_META[cur.scenario];
   const fb = el('div', {class:'compact-fb ' + (correct ? 'correct' : 'wrong')}, []);
   const head = el('div', {class:'head'}, [
-    correct ? '✓ Correct' : `✗ Correct: ${cur.correct.toUpperCase()}`,
+    correct ? '✓ Correct' : `✗ Correct: ${actionLabel(cur.correct, meta).toUpperCase()}`,
     el('span', {class:'badge'}, [cur.hand])
   ]);
   fb.appendChild(head);
 
   const why = el('div', {class:'why'}, []);
-  if(correct){
-    why.innerHTML = `<strong>${cat}</strong> · ${cur.position} ${cur.correct === 'raise' ? 'opens' : cur.correct === 'call' ? 'flats/defends' : 'folds'} this.`;
-  }else{
-    why.innerHTML = `<strong>${cat}</strong> · ${shortReason(cur.hand, cur.position, cur.correct)}`;
-  }
+  why.innerHTML = `<strong>${cat}</strong> · ${scenarioReason(cur)}`;
   fb.appendChild(why);
   return fb;
 }
 
-function shortReason(hand, position, correct){
-  const cat = handCategory(hand);
-  if(correct === 'raise'){
-    if(['UTG','UTG+1','MP','HJ'].includes(position)) return `Strong enough for ${position} to open.`;
-    return `${position} opens wide thanks to position; this hand makes the cut.`;
+const EARLY_POSITIONS = ['UTG','UTG+1','UTG+2','LJ','MP'];
+function scenarioReason(cur){
+  const {position, scenario, correct} = cur;
+  if(scenario === 'open'){
+    if(correct === 'raise'){
+      if(EARLY_POSITIONS.includes(position)) return `Strong enough for ${position} to open.`;
+      return `${position} opens wide thanks to position; this hand makes the cut.`;
+    }
+    return EARLY_POSITIONS.includes(position)
+      ? 'Too marginal for early position — too many players left.'
+      : 'Not enough equity or playability from this seat.';
   }
-  if(correct === 'call'){
-    if(position === 'SB') return 'SB completes/flats with hands not strong enough to 3bet.';
-    if(position === 'BB') return 'BB gets a discount to defend — call is profitable.';
-    return 'Has playability but not premium enough to raise here.';
+  if(scenario === 'vsOpen'){
+    if(correct === 'raise') return `Strong enough to 3-bet for value (or as a blocker/bluff) from ${position}.`;
+    if(correct === 'call') return `Playable enough to flat and see a flop, not strong enough to 3-bet.`;
+    return `Not enough equity to continue facing an open from ${position}.`;
   }
-  if(['UTG','UTG+1','MP'].includes(position)) return 'Too marginal for early position — too many players left.';
-  return 'Not enough equity or playability from this seat.';
-}
-
-function newHandM1Quick(){
-  newHandM1();
+  if(scenario === 'vs3bet'){
+    if(correct === 'raise') return `Strong enough to 4-bet for value (or as a blocker/bluff).`;
+    if(correct === 'call') return `Good enough to see a flop, not strong enough to 4-bet.`;
+    return `Give up here — not enough equity to continue facing a 3-bet.`;
+  }
+  // vs4bet
+  if(correct === 'raise') return `Top of your range — get the money in facing a 4-bet.`;
+  if(correct === 'call') return `Strong enough to see a flop, not to stack off facing a 4-bet.`;
+  return `Your 3-bet has to give up here — not enough equity for a 5-bet pot.`;
 }
 
 function updateM1Live(){
@@ -1603,22 +1750,36 @@ function updateM1Live(){
    GRID OVERLAY
 ============================================================ */
 let overlayCurrentPos = 'BTN';
+let overlayCurrentScenario = 'open';
 function openGridOverlay(){
-  const pos = session.current?.position || overlayCurrentPos;
+  const cur = session.current;
+  const scenario = (cur && cur.scenario) || 'open';
+  const pos = (cur && cur.position) || overlayCurrentPos;
   overlayCurrentPos = pos;
-  document.getElementById('gridOverlayPos').textContent = pos;
+  overlayCurrentScenario = scenario;
+  const meta = SCENARIO_META[scenario];
+  document.getElementById('gridOverlayPos').textContent = pos + (scenario === 'open' ? '' : ' · ' + meta.label);
+  const legend = document.getElementById('gridOverlayLegend');
+  if(legend){
+    legend.innerHTML = '';
+    legend.appendChild(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot raise'}, []), meta.raiseLabel]));
+    if(meta.hasCall) legend.appendChild(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot call'}, []), 'Call']));
+    legend.appendChild(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot fold'}, []), 'Fold']));
+  }
   const container = document.getElementById('overlayGridContainer');
   container.innerHTML = '';
-  container.appendChild(renderGridFor(pos, null, handleGridTap));
+  container.appendChild(renderGridFor(pos, null, handleGridTap, null, scenario));
   document.getElementById('overlayHandInfo').textContent = 'Tap any cell to see its action.';
   document.getElementById('gridOverlay').classList.add('show');
 }
 
 function handleGridTap(hand){
   const pos = overlayCurrentPos;
-  const d = decisionFor(hand, pos);
+  const scenario = overlayCurrentScenario;
+  const meta = SCENARIO_META[scenario];
+  const d = decisionFor(hand, pos, scenario);
   const info = document.getElementById('overlayHandInfo');
-  const label = d.toUpperCase();
+  const label = actionLabel(d, meta).toUpperCase();
   info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${pos}</strong> → <strong style="color:var(--${d})">${label}</strong> <span class="cat-label">${handCategory(hand)}</span>`;
 }
 
@@ -1631,16 +1792,16 @@ function closeOverlay(e, id){
   document.getElementById(id).classList.remove('show');
 }
 
-function renderGridFor(position, highlightHand, onCellTap, diffPosition){
+function renderGridFor(position, highlightHand, onCellTap, diffPosition, scenario){
   const grid = el('div', {class:'range-grid'}, []);
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position);
+      const d = decisionFor(h, position, scenario);
       const cell = el('div', {class: 'range-cell ' + d}, [h]);
       if(h === highlightHand) cell.classList.add('highlight');
       if(diffPosition){
-        const d2 = decisionFor(h, diffPosition);
+        const d2 = decisionFor(h, diffPosition, scenario);
         if(d2 !== d) cell.classList.add('diff');
       }
       if(onCellTap) cell.onclick = () => onCellTap(h);
@@ -1819,8 +1980,9 @@ function showM2Feedback(correct, given){
     ]));
     body.appendChild(cmp);
     const mult = cur.street === 'Flop' ? 4 : 2;
-    body.appendChild(el('div', {class:'breakdown'}, [], )).innerHTML =
-      `<strong>Rule of ${mult}:</strong> ${cur.draw.outs} outs × ${mult} = <strong>${cur.equity}%</strong> equity by river.`;
+    const ruleBox = el('div', {class:'breakdown'}, []);
+    ruleBox.innerHTML = `<strong>Rule of ${mult}:</strong> ${cur.draw.outs} outs × ${mult} = <strong>${cur.equity}%</strong> equity by river.`;
+    body.appendChild(ruleBox);
   }
 
   if(navigator.vibrate) navigator.vibrate(correct ? 15 : [30,30,30]);
@@ -1976,10 +2138,13 @@ function renderHistItem(h, which){
   item.appendChild(el('div', {class: 'mark ' + (h.correct ? 'c' : 'w')}, [h.correct ? '✓' : '✗']));
   const info = el('div', {class:'info'}, []);
   if(which === 'm1'){
-    info.appendChild(el('div', {class:'top'}, [h.hand + ' · ' + (h.given || '').toUpperCase() + (h.correct ? '' : ' → ' + (h.correctDec || '').toUpperCase())]));
+    const meta = SCENARIO_META[h.scenario] || SCENARIO_META.open;
+    const givenLabel = h.given ? actionLabel(h.given, meta).toUpperCase() : '';
+    const correctLabel = h.correctDec ? actionLabel(h.correctDec, meta).toUpperCase() : '';
+    info.appendChild(el('div', {class:'top'}, [h.hand + ' · ' + givenLabel + (h.correct ? '' : ' → ' + correctLabel)]));
     info.appendChild(el('div', {class:'bot'}, [handCategory(h.hand)]));
     item.appendChild(info);
-    item.appendChild(el('div', {class:'pos-mini'}, [h.position]));
+    item.appendChild(el('div', {class:'pos-mini'}, [h.position + (h.scenario && h.scenario !== 'open' ? ' · ' + meta.short : '')]));
   }else{
     if(h.sub === 'A'){
       info.appendChild(el('div', {class:'top'}, [`Pot ${fmtMoney(h.pot)} · Bet ${fmtMoney(h.bet)}`]));
@@ -1998,13 +2163,40 @@ function renderHistItem(h, which){
    RANGES EXPLORER
 ============================================================ */
 let rangeMode = 'single';
+let rangeScenario = 'open';
 let rangeSel1 = 'BTN';
 let rangeSel2 = 'UTG';
 
 function openRangesScreen(){
   rangeMode = 'single';
+  rangeScenario = 'open';
+  const applicable = applicablePositions(rangeScenario);
+  if(!applicable.includes(rangeSel1)) rangeSel1 = applicable[0];
+  if(!applicable.includes(rangeSel2)) rangeSel2 = applicable[applicable.length - 1];
+  renderScenarioRow();
   setRangeMode('single');
   nav('ranges');
+}
+
+function renderScenarioRow(){
+  const row = document.getElementById('scenarioRow');
+  if(!row) return;
+  row.innerHTML = '';
+  SCENARIO_ORDER.forEach(key => {
+    row.appendChild(el('button', {
+      class: 'ct-btn' + (key === rangeScenario ? ' on' : ''),
+      onclick: () => setRangeScenario(key)
+    }, [SCENARIO_META[key].label]));
+  });
+}
+
+function setRangeScenario(scenario){
+  rangeScenario = scenario;
+  const applicable = applicablePositions(scenario);
+  if(!applicable.includes(rangeSel1)) rangeSel1 = applicable[0];
+  if(!applicable.includes(rangeSel2)) rangeSel2 = applicable[applicable.length - 1];
+  renderScenarioRow();
+  renderRangesScreen();
 }
 
 function setRangeMode(mode){
@@ -2019,10 +2211,14 @@ function renderRangesScreen(){
   const body = document.getElementById('rangesBody');
   controls.innerHTML = '';
   body.innerHTML = '';
+  const meta = SCENARIO_META[rangeScenario];
+  const positions = applicablePositions(rangeScenario);
+
+  controls.appendChild(el('div', {style:'text-align:center;font-size:11.5px;color:var(--text-mute);padding:0 16px 4px;line-height:1.4'}, [meta.blurb]));
 
   if(rangeMode === 'single'){
     const tabs = el('div', {class:'pos-tab-row'}, []);
-    POSITIONS.forEach(p => {
+    positions.forEach(p => {
       tabs.appendChild(el('button', {
         class: 'pos-tab' + (p === rangeSel1 ? ' active' : ''),
         onclick: () => { rangeSel1 = p; renderRangesScreen(); }
@@ -2030,61 +2226,58 @@ function renderRangesScreen(){
     });
     controls.appendChild(tabs);
 
-    const stats = rangeStats(rangeSel1);
-    const statsRow = el('div', {class:'range-stats'}, [
-      el('div', {class:'range-stat raise'}, [el('div', {class:'v'}, [stats.raise + '%']), el('div', {class:'l'}, ['Raise'])]),
-      el('div', {class:'range-stat call'}, [el('div', {class:'v'}, [stats.call + '%']), el('div', {class:'l'}, ['Call'])]),
-      el('div', {class:'range-stat fold'}, [el('div', {class:'v'}, [stats.fold + '%']), el('div', {class:'l'}, ['Fold'])])
-    ]);
-    body.appendChild(statsRow);
+    const stats = rangeStats(rangeSel1, rangeScenario);
+    const statTiles = [el('div', {class:'range-stat raise'}, [el('div', {class:'v'}, [stats.raise + '%']), el('div', {class:'l'}, [meta.raiseLabel])])];
+    if(meta.hasCall) statTiles.push(el('div', {class:'range-stat call'}, [el('div', {class:'v'}, [stats.call + '%']), el('div', {class:'l'}, ['Call'])]));
+    statTiles.push(el('div', {class:'range-stat fold'}, [el('div', {class:'v'}, [stats.fold + '%']), el('div', {class:'l'}, ['Fold'])]));
+    body.appendChild(el('div', {class:'range-stats'}, statTiles));
 
-    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap));
-    body.appendChild(el('div', {class:'grid-legend'}, [
-      el('div', {class:'legend-item'}, [el('div', {class:'legend-dot raise'}, []), 'Raise']),
-      el('div', {class:'legend-item'}, [el('div', {class:'legend-dot call'}, []), 'Call']),
-      el('div', {class:'legend-item'}, [el('div', {class:'legend-dot fold'}, []), 'Fold'])
-    ]));
+    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, null, rangeScenario));
+    const legendItems = [el('div', {class:'legend-item'}, [el('div', {class:'legend-dot raise'}, []), meta.raiseLabel])];
+    if(meta.hasCall) legendItems.push(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot call'}, []), 'Call']));
+    legendItems.push(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot fold'}, []), 'Fold']));
+    body.appendChild(el('div', {class:'grid-legend'}, legendItems));
     body.appendChild(el('div', {id:'rangesHandInfo', style:'text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-top:8px'}, ['Tap any cell for details.']));
   }
   else if(rangeMode === 'compare'){
     const selRow = el('div', {class:'compare-row'}, []);
     const sel1 = el('div', {class:'sel'}, [
       el('div', {class:'l'}, ['Position A']),
-      buildPosSelect(rangeSel1, v => { rangeSel1 = v; renderRangesScreen(); })
+      buildPosSelect(rangeSel1, v => { rangeSel1 = v; renderRangesScreen(); }, positions)
     ]);
     const sel2 = el('div', {class:'sel'}, [
       el('div', {class:'l'}, ['Position B (diff)']),
-      buildPosSelect(rangeSel2, v => { rangeSel2 = v; renderRangesScreen(); })
+      buildPosSelect(rangeSel2, v => { rangeSel2 = v; renderRangesScreen(); }, positions)
     ]);
     selRow.appendChild(sel1); selRow.appendChild(sel2);
     controls.appendChild(selRow);
 
-    const stats1 = rangeStats(rangeSel1);
-    const stats2 = rangeStats(rangeSel2);
+    const stats1 = rangeStats(rangeSel1, rangeScenario);
+    const stats2 = rangeStats(rangeSel2, rangeScenario);
 
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-top:2px'}, [
-      `${rangeSel1} (raise ${stats1.raise}%) — cells with white border differ from ${rangeSel2}`
+      `${rangeSel1} (${meta.raiseLabel.toLowerCase()} ${stats1.raise}%) — cells with white border differ from ${rangeSel2}`
     ]));
-    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, rangeSel2));
+    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, rangeSel2, rangeScenario));
 
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-top:14px'}, [
-      `${rangeSel2} (raise ${stats2.raise}%)`
+      `${rangeSel2} (${meta.raiseLabel.toLowerCase()} ${stats2.raise}%)`
     ]));
-    body.appendChild(renderGridFor(rangeSel2, null, handleRangesTap, rangeSel1));
+    body.appendChild(renderGridFor(rangeSel2, null, handleRangesTap, rangeSel1, rangeScenario));
 
     body.appendChild(el('div', {id:'rangesHandInfo', style:'text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-top:8px'}, ['Tap any cell to compare.']));
   }
   else if(rangeMode === 'all'){
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center'}, ['All positions at a glance — tap to expand']));
     const grid = el('div', {class:'mini-grids'}, []);
-    POSITIONS.forEach(p => {
-      const stats = rangeStats(p);
+    positions.forEach(p => {
+      const stats = rangeStats(p, rangeScenario);
       const tile = el('button', {class:'mini-grid-tile' + (p === rangeSel1 ? ' active-tile' : ''), onclick: () => { rangeSel1 = p; setRangeMode('single'); }}, [
         el('div', {class:'tile-head'}, [
           el('div', {class:'tile-pos'}, [p]),
-          el('div', {class:'tile-pct'}, ['R ' + stats.raise + '%'])
+          el('div', {class:'tile-pct'}, [meta.tileAbbrev + ' ' + stats.raise + '%'])
         ]),
-        renderMiniGrid(p)
+        renderMiniGrid(p, rangeScenario)
       ]);
       grid.appendChild(tile);
     });
@@ -2092,9 +2285,9 @@ function renderRangesScreen(){
   }
 }
 
-function buildPosSelect(current, onChange){
+function buildPosSelect(current, onChange, positions){
   const sel = el('select', {onchange: e => onChange(e.target.value)}, []);
-  POSITIONS.forEach(p => {
+  (positions || POSITIONS).forEach(p => {
     const opt = el('option', {value: p}, [p]);
     if(p === current) opt.setAttribute('selected', 'selected');
     sel.appendChild(opt);
@@ -2102,12 +2295,12 @@ function buildPosSelect(current, onChange){
   return sel;
 }
 
-function renderMiniGrid(position){
+function renderMiniGrid(position, scenario){
   const grid = el('div', {class:'mini-range-grid'}, []);
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position);
+      const d = decisionFor(h, position, scenario);
       grid.appendChild(el('div', {class: 'mini-cell ' + d}, []));
     }
   }
@@ -2117,13 +2310,14 @@ function renderMiniGrid(position){
 function handleRangesTap(hand){
   const info = document.getElementById('rangesHandInfo');
   if(!info) return;
+  const meta = SCENARIO_META[rangeScenario];
   if(rangeMode === 'compare'){
-    const d1 = decisionFor(hand, rangeSel1);
-    const d2 = decisionFor(hand, rangeSel2);
-    info.innerHTML = `<span class="hand-label">${hand}</span> · <strong>${rangeSel1}</strong> → <span style="color:var(--${d1})">${d1.toUpperCase()}</span> · <strong>${rangeSel2}</strong> → <span style="color:var(--${d2})">${d2.toUpperCase()}</span>`;
+    const d1 = decisionFor(hand, rangeSel1, rangeScenario);
+    const d2 = decisionFor(hand, rangeSel2, rangeScenario);
+    info.innerHTML = `<span class="hand-label">${hand}</span> · <strong>${rangeSel1}</strong> → <span style="color:var(--${d1})">${actionLabel(d1, meta).toUpperCase()}</span> · <strong>${rangeSel2}</strong> → <span style="color:var(--${d2})">${actionLabel(d2, meta).toUpperCase()}</span>`;
   }else{
-    const d = decisionFor(hand, rangeSel1);
-    info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${rangeSel1}</strong> → <strong style="color:var(--${d})">${d.toUpperCase()}</strong> · ${handCategory(hand)}`;
+    const d = decisionFor(hand, rangeSel1, rangeScenario);
+    info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${rangeSel1}</strong> → <strong style="color:var(--${d})">${actionLabel(d, meta).toUpperCase()}</strong> · ${handCategory(hand)}`;
   }
 }
 
@@ -2223,17 +2417,17 @@ function renderLesson(){
 
   body.appendChild(card);
 
-  const nav = el('div', {class:'lesson-nav'}, []);
+  const navRow = el('div', {class:'lesson-nav'}, []);
   const prevBtn = el('button', {class:'nav-btn', onclick: prevLesson}, ['← Prev']);
   if(currentLesson === 0) prevBtn.disabled = true;
-  nav.appendChild(prevBtn);
+  navRow.appendChild(prevBtn);
 
   if(currentLesson < POSTFLOP_LESSONS.length - 1){
-    nav.appendChild(el('button', {class:'nav-btn primary', onclick: nextLesson}, ['Next →']));
+    navRow.appendChild(el('button', {class:'nav-btn primary', onclick: nextLesson}, ['Next →']));
   }else{
-    nav.appendChild(el('button', {class:'nav-btn primary', onclick: finishPostflop}, ['Finish ✓']));
+    navRow.appendChild(el('button', {class:'nav-btn primary', onclick: finishPostflop}, ['Finish ✓']));
   }
-  body.appendChild(nav);
+  body.appendChild(navRow);
 
   if(!state.postflop.lessonsViewed.includes(currentLesson)){
     state.postflop.lessonsViewed.push(currentLesson);
@@ -2358,8 +2552,9 @@ function setTableSize(size){
   rebuildRangeSets();
   saveState();
   renderSettings();
-  rangeSel1 = POSITIONS[0];
-  rangeSel2 = POSITIONS[POSITIONS.length - 1];
+  const applicable = applicablePositions(typeof rangeScenario === 'string' ? rangeScenario : 'open');
+  rangeSel1 = applicable[0];
+  rangeSel2 = applicable[applicable.length - 1];
 }
 
 function resetStats(){
@@ -2961,7 +3156,7 @@ function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol === 'file:') return;
   const swCode = `
-    const CACHE = 'poker-trainer-v4';
+    const CACHE = 'poker-trainer-v5';
     self.addEventListener('install', e => {
       self.skipWaiting();
     });
