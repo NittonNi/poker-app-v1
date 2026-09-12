@@ -32,15 +32,19 @@
   --accent2:#0058c7;
   --accent-bright:#0a84ff;
   --accent-glow:rgba(0,122,255,.22);
-  --raise:#2fa84f;
-  --raise-bright:#30d158;
+  /* Each action has a text shade (legible on white) and a fill shade
+     (a block of colour). Using one value for both is what made the
+     orange unreadable in either direction. */
+  --raise:#1a8f4c;
+  --raise-bright:#34c759;
   --raise-dim:#1f7a3d;
-  --call:#ff9500;
-  --call-bright:#ffb340;
-  --call-dim:#b25900;
-  --fold:#ff3b30;
-  --fold-bright:#ff6259;
-  --fold-dim:#c81e1e;
+  --call:#b45309;
+  --call-bright:#ffa726;
+  --call-on-fill:#3d2200;
+  --call-dim:#8a4b00;
+  --fold:#d70015;
+  --fold-bright:#ff453a;
+  --fold-dim:#a8352c;
   --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.07);
   --shadow-light:0 1px 2px rgba(0,0,0,.03),0 4px 14px rgba(0,0,0,.05);
   --radius:16px;
@@ -86,6 +90,10 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 
 /* ===== HOME ===== */
 .home-body{flex:1;display:flex;flex-direction:column;padding:var(--sp3) var(--sp4) var(--sp6);gap:var(--sp3);overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Scrolling flex columns shrink their children before they scroll, which
+   silently squashed every card on a long screen (the Glossary collapsed to
+   empty bars). Children keep their own height; the column scrolls instead. */
+.home-body>*,.ex-body>*{flex-shrink:0}
 .hero{text-align:center;padding:var(--sp2) var(--sp2) var(--sp1)}
 .hero h1{margin:0;font-size:var(--t-3xl);font-weight:800;letter-spacing:.3px;color:var(--text)}
 .hero p{margin:var(--sp1) 0 0;font-size:var(--t-base);color:var(--text-dim)}
@@ -140,9 +148,12 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .act{height:58px;border-radius:14px;font-weight:700;font-size:15px;letter-spacing:.3px;border:1px solid transparent;transition:transform .12s var(--ease-out),opacity .15s ease;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .act:active{transform:scale(.96);opacity:.85}
 .act.raise{background:var(--raise);color:#ffffff}
-.act.call{background:var(--call);color:#ffffff}
+.act.call{background:var(--call-bright);color:var(--call-on-fill)}
 .act.fold{background:rgba(60,60,67,.06);color:var(--fold)}
 .act:disabled{opacity:.4}
+.act.is-correct,.act.is-wrong{opacity:1}
+.act.is-correct{box-shadow:inset 0 0 0 3px var(--raise)}
+.act.is-wrong{box-shadow:inset 0 0 0 3px var(--fold)}
 
 /* ===== COMPACT FEEDBACK (fast preflop) ===== */
 .compact-fb{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--surface-border);border-radius:12px;padding:12px 14px;animation:fadeIn .2s ease}
@@ -172,8 +183,8 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .range-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border-radius:3px;background:#ffffff;color:var(--text-mute);position:relative;cursor:pointer;transition:transform .08s ease}
 .range-cell:active{transform:scale(1.15);z-index:2}
 .range-cell.raise{background:var(--raise);color:#ffffff}
-.range-cell.call{background:var(--call);color:#ffffff}
-.range-cell.fold{background:rgba(255,59,48,.12);color:#b0362e}
+.range-cell.call{background:var(--call-bright);color:var(--call-on-fill)}
+.range-cell.fold{background:rgba(255,59,48,.1);color:var(--fold-dim)}
 .range-cell.highlight{outline:2px solid var(--accent);outline-offset:1px;z-index:3}
 .range-cell.highlight::after{content:"";position:absolute;inset:-3px;border:2px solid var(--accent);border-radius:5px;animation:pulse 1.4s ease infinite}
 .range-cell.diff{box-shadow:inset 0 0 0 2px var(--accent)}
@@ -182,7 +193,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .legend-item{display:flex;align-items:center;gap:5px}
 .legend-dot{width:10px;height:10px;border-radius:3px}
 .legend-dot.raise{background:var(--raise)}
-.legend-dot.call{background:var(--call)}
+.legend-dot.call{background:var(--call-bright)}
 .legend-dot.fold{background:rgba(255,59,48,.4)}
 
 /* ===== POT ODDS ===== */
@@ -247,7 +258,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .mini-range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:1px;padding:2px;background:var(--surface-3);border-radius:4px}
 .mini-cell{aspect-ratio:1;background:#ffffff;border-radius:1px}
 .mini-cell.raise{background:var(--raise)}
-.mini-cell.call{background:var(--call)}
+.mini-cell.call{background:var(--call-bright)}
 .mini-cell.fold{background:rgba(255,59,48,.3)}
 
 .compare-toggle{display:flex;gap:8px;padding:0 16px 6px}
@@ -358,8 +369,8 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .pos-stat .n{font-size:12px;color:var(--text-dim);font-weight:600}
 .pos-stat .b{height:6px;background:var(--surface-3);border-radius:3px;margin:6px 0 4px;overflow:hidden}
 .pos-stat .b-fill{height:100%;background:var(--raise);border-radius:3px;transition:width .3s ease}
-.pos-stat .b-fill.low{background:var(--fold)}
-.pos-stat .b-fill.mid{background:var(--call)}
+.pos-stat .b-fill.low{background:var(--fold-bright)}
+.pos-stat .b-fill.mid{background:var(--call-bright)}
 .pos-stat .v{font-size:11px;color:var(--text-mute)}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -396,12 +407,9 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .seat.acting .seat-avatar{animation:actingPulse 1.2s ease infinite}
 .seat.raised .seat-avatar{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .seat.raised .seat-name::after{content:" •";color:var(--accent);font-weight:800}
-.seat-chip{position:absolute;left:50%;top:-2px;transform:translate(-50%,-100%);width:14px;height:14px;border-radius:50%;background:#ffffff;border:1.5px solid var(--text-mute);box-shadow:var(--shadow-light);z-index:4}
-.seat-chip.large{width:18px;height:18px}
+/* Calling is not raising — it gets a quiet ring and no aggression dot. */
+.seat.called .seat-avatar{border-color:var(--text-mute)}
 .btn-marker{position:absolute;width:18px;height:18px;border-radius:50%;background:#ffffff;color:var(--text);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-light);z-index:5;transform:translate(-50%,-50%);border:1.5px solid var(--surface-border)}
-.center-chip{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);display:flex;gap:2px;z-index:2}
-.center-chip .c{width:10px;height:10px;border-radius:50%;background:var(--text-mute);box-shadow:var(--shadow-light)}
-.flying-chip{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:var(--shadow-light);transform:translate(-50%,-50%);z-index:6;transition:left .35s cubic-bezier(.4,.0,.2,1),top .35s cubic-bezier(.4,.0,.2,1),opacity .25s ease}
 .mini-cards{position:absolute;left:50%;top:36px;transform:translate(-50%,0);display:flex;gap:2px;z-index:2}
 .mini-cards .mc{width:9px;height:12px;border-radius:2px;background:var(--surface-border)}
 .seat.folded .mini-cards{opacity:0}
@@ -467,7 +475,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .eq-hint{font-size:11.5px;color:var(--text-on-light-mute);text-align:center;margin-top:8px;line-height:1.4;font-style:italic}
 .eq-bar{height:10px;border-radius:5px;background:var(--surface-3);overflow:hidden;margin-top:10px;display:flex}
 .eq-bar .b-win{background:var(--raise);transition:width .3s ease}
-.eq-bar .b-tie{background:var(--call);transition:width .3s ease}
+.eq-bar .b-tie{background:var(--call-bright);transition:width .3s ease}
 .eq-bar .b-loss{background:var(--fold);transition:width .3s ease;flex-grow:0}
 
 .solver-note{background:rgba(47,168,79,.08);border:1px solid rgba(47,168,79,.25);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--text-on-light);line-height:1.5;margin-top:10px}
@@ -953,6 +961,24 @@ const VS_4BET_UNIVERSAL = {
   call: ['QQ','JJ']
 };
 
+/* Folded to the small blind is a steal spot against one player, not an
+   early-position open: the RANGE_DEF entry for SB is its 3-bet/flat range
+   against an opener, so using that as an opening range had SB opening
+   tighter than UTG. */
+const SB_STEAL_RANGE = {
+  raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
+    'AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
+    'KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s',
+    'QJs','QTs','Q9s','Q8s','Q7s','Q6s','Q5s','Q4s',
+    'JTs','J9s','J8s','J7s','J6s',
+    'T9s','T8s','T7s','T6s',
+    '98s','97s','96s','87s','86s','85s','76s','75s','65s','64s','54s',
+    'AKo','AQo','AJo','ATo','A9o','A8o','A7o','A6o','A5o','A4o','A3o','A2o',
+    'KQo','KJo','KTo','K9o','K8o','K7o',
+    'QJo','QTo','Q9o','Q8o','JTo','J9o','J8o','T9o','T8o','98o'],
+  call: []
+};
+
 // Positions that can legally reach each scenario. BB can never open (folded
 // to BB just ends the hand), and the very first seat to act can never be
 // facing anything before it.
@@ -994,7 +1020,8 @@ let SCENARIO_SETS = {};
 function buildScenarioSets(){
   const open = {};
   applicablePositions('open').forEach(pos => {
-    open[pos] = { raise: new Set(RANGE_DEF[pos].raise), call: new Set() };
+    const def = pos === 'SB' ? SB_STEAL_RANGE : RANGE_DEF[pos];
+    open[pos] = { raise: new Set(def.raise), call: new Set() };
   });
 
   const vsOpen = {};
@@ -1067,6 +1094,7 @@ function handCategory(hand){
   if(isSuitedAce && lv >= 10) return 'Suited broadway ace';
   if(isSuitedAce) return 'Suited ace';
   if(isBroadway) return suited ? 'Suited broadway' : 'Offsuit broadway';
+  if(hi === 'A') return 'Offsuit ace';
   if(suited && gap === 1) return 'Suited connector';
   if(suited && gap === 2) return 'Suited one-gapper';
   if(suited) return 'Suited gapper';
@@ -1313,9 +1341,17 @@ function pct(part, whole){
   return Math.round((part / whole) * 100);
 }
 
+/* The pot sizes are stored in euros at a 2c big blind. The BB view has to
+   keep a decimal, otherwise the rounded numbers no longer divide into the
+   pot odds the feedback is explaining. */
+const BB_SIZE = 0.02;
+function fmtNum(v){
+  const n = state.currency === 'BB' ? v / BB_SIZE : v;
+  const s = state.currency === 'BB' ? String(Math.round(n * 10) / 10) : n.toFixed(2);
+  return s.replace('.', ',');
+}
 function fmtMoney(v){
-  if(state.currency === 'BB') return (v / 0.02).toFixed(0) + ' BB';
-  return v.toFixed(2).replace('.', ',') + '€';
+  return fmtNum(v) + (state.currency === 'BB' ? ' BB' : '€');
 }
 
 /* ============================================================
@@ -1497,8 +1533,7 @@ function renderM1(){
   const tableWrap = el('div', {class:'poker-table-wrap'}, []);
   const table = el('div', {class:'poker-table', id:'pokerTable'}, [
     el('div', {class:'table-felt', id:'tableFelt'}, [
-      el('div', {class:'table-center'}, [el('div', {class:'pot-label', id:'potLabel'}, ['Blinds posted'])]),
-      el('div', {class:'center-chip', id:'centerChips'}, [])
+      el('div', {class:'table-center'}, [el('div', {class:'pot-label', id:'potLabel'}, ['Pot'])])
     ])
   ]);
   tableWrap.appendChild(table);
@@ -1538,7 +1573,7 @@ function seatCoords(slot, total){
 function setupPokerTable(heroPosition, script){
   const felt = document.getElementById('tableFelt');
   if(!felt) return;
-  felt.querySelectorAll('.seat,.btn-marker,.flying-chip').forEach(e => e.remove());
+  felt.querySelectorAll('.seat,.btn-marker').forEach(e => e.remove());
   const total = POKER_ORDER.length;
   const heroIdx = POKER_ORDER.indexOf(heroPosition);
 
@@ -1555,20 +1590,38 @@ function setupPokerTable(heroPosition, script){
       el('div', {class:'mini-cards'}, [el('div', {class:'mc'}, []), el('div', {class:'mc'}, [])]),
       el('div', {class:'seat-name'}, [pos])
     ]);
-    if(pos === 'SB') seat.appendChild(el('div', {class:'seat-chip'}, []));
-    if(pos === 'BB') seat.appendChild(el('div', {class:'seat-chip large'}, []));
     felt.appendChild(seat);
 
     if(pos === 'BTN'){
-      const btnX = x + (x < 50 ? 9 : x > 50 ? -9 : 0);
-      const btnY = y + (y < 50 ? 8 : -8);
+      // Always offset the marker towards the middle of the table. Keying the
+      // horizontal nudge off `x < 50` left it at zero for a seat sitting dead
+      // centre, which put the button on top of the hero's own avatar.
+      const btnX = x + (x >= 50 ? -11 : 11);
+      const btnY = y + (y < 50 ? 9 : -9);
       felt.appendChild(el('div', {class:'btn-marker', style:`left:${btnX}%;top:${btnY}%`}, ['D']));
     }
   }
 
+  const potEl = document.getElementById('potLabel');
+  if(potEl) potEl.textContent = 'Pot ' + potBeforeHero(script) + ' BB';
+
   const tape = document.getElementById('actionTape');
   if(tape) tape.innerHTML = 'Blinds posted, cards dealt...';
   animatePreflopAction(heroPosition, script);
+}
+
+/* Standard no-limit sizings, so the middle of the table shows what is
+   actually at stake when it gets back to you instead of a fixed caption. */
+const RAISE_SIZE_BB = [2.5, 9, 22];
+function potBeforeHero(script){
+  let pot = 1.5; // small blind + big blind
+  let step = 0;
+  script.steps.forEach(s => {
+    if(s.action !== 'raise') return;
+    pot += RAISE_SIZE_BB[Math.min(step, RAISE_SIZE_BB.length - 1)];
+    step++;
+  });
+  return Math.round(pot * 10) / 10;
 }
 
 function clearAnimTimeouts(){
@@ -1633,7 +1686,7 @@ function animateHeroAction(decision){
     hero.classList.add('folded');
     if(tape) tape.innerHTML = `<strong>You</strong> fold`;
   }else if(decision === 'call'){
-    hero.classList.add('raised');
+    hero.classList.add('called');
     if(tape) tape.innerHTML = `<strong>You</strong> call`;
   }else{
     hero.classList.add('raised');
@@ -1661,6 +1714,13 @@ function answerM1(decision){
   const panel = el('div', {class:'answer-panel ' + (correct ? 'correct' : 'wrong')}, []);
   panel.appendChild(buildCompactFeedback(decision, correct, cur));
 
+  // The milestone card goes inside the panel, above the button — appending it
+  // to the screen afterwards pushed it below the fold every tenth hand.
+  if(session.sinceMilestone >= 10){
+    session.sinceMilestone = 0;
+    showInlineMilestone(panel, 'm1');
+  }
+
   if(correct && state.autoAdvance){
     panel.appendChild(el('div', {class:'auto-bar'}, []));
     session.pendingTimeout = setTimeout(() => { newHandM1(); }, 760);
@@ -1678,10 +1738,6 @@ function answerM1(decision){
   if(navigator.vibrate) navigator.vibrate(correct ? 15 : [30,30,30]);
 
   updateM1Live();
-  if(session.sinceMilestone >= 10){
-    session.sinceMilestone = 0;
-    showInlineMilestone(body, 'm1');
-  }
 }
 
 function buildCompactFeedback(decision, correct, cur){
@@ -1703,6 +1759,9 @@ function buildCompactFeedback(decision, correct, cur){
 const EARLY_POSITIONS = ['UTG','UTG+1','UTG+2','LJ','MP'];
 function scenarioReason(cur){
   const {position, scenario, correct} = cur;
+  // Name the seat that actually put the money in — saying "facing an open
+  // from BTN" while BTN is the hero read as if the hero had opened.
+  const villain = (cur.script && cur.script.facing) || 'the raiser';
   if(scenario === 'open'){
     if(correct === 'raise'){
       if(EARLY_POSITIONS.includes(position)) return `Strong enough for ${position} to open.`;
@@ -1713,19 +1772,19 @@ function scenarioReason(cur){
       : 'Not enough equity or playability from this seat.';
   }
   if(scenario === 'vsOpen'){
-    if(correct === 'raise') return `Strong enough to 3-bet for value (or as a blocker/bluff) from ${position}.`;
-    if(correct === 'call') return `Playable enough to flat and see a flop, not strong enough to 3-bet.`;
-    return `Not enough equity to continue facing an open from ${position}.`;
+    if(correct === 'raise') return `Strong enough to 3-bet ${villain}'s open for value or as a blocker.`;
+    if(correct === 'call') return `Playable enough to flat ${villain}'s open, not strong enough to 3-bet.`;
+    return `Not worth defending from ${position} against ${villain}'s open.`;
   }
   if(scenario === 'vs3bet'){
-    if(correct === 'raise') return `Strong enough to 4-bet for value (or as a blocker/bluff).`;
-    if(correct === 'call') return `Good enough to see a flop, not strong enough to 4-bet.`;
-    return `Give up here — not enough equity to continue facing a 3-bet.`;
+    if(correct === 'raise') return `Strong enough to 4-bet ${villain}'s 3-bet for value or as a blocker.`;
+    if(correct === 'call') return `Good enough to call ${villain}'s 3-bet and see a flop, not to 4-bet.`;
+    return `Give up — not enough equity to continue against ${villain}'s 3-bet.`;
   }
   // vs4bet
-  if(correct === 'raise') return `Top of your range — get the money in facing a 4-bet.`;
-  if(correct === 'call') return `Strong enough to see a flop, not to stack off facing a 4-bet.`;
-  return `Your 3-bet has to give up here — not enough equity for a 5-bet pot.`;
+  if(correct === 'raise') return `Top of your range — get it in against ${villain}'s 4-bet.`;
+  if(correct === 'call') return `Strong enough to call ${villain}'s 4-bet, not to stack off.`;
+  return `Your 3-bet has to give up — not enough equity for a 5-bet pot.`;
 }
 
 function updateM1Live(){
@@ -1878,8 +1937,8 @@ function renderM2(){
     body.appendChild(drawBox);
 
     const actions = el('div', {class:'actions', style:'grid-template-columns:1fr 1fr', id:'m2Actions'}, [
-      el('button', {class:'act fold', onclick: () => answerM2B('fold')}, ['Fold']),
-      el('button', {class:'act call', onclick: () => answerM2B('call')}, ['Call'])
+      el('button', {class:'act fold', 'data-val':'fold', onclick: () => answerM2B('fold')}, ['Fold']),
+      el('button', {class:'act call', 'data-val':'call', onclick: () => answerM2B('call')}, ['Call'])
     ]);
     body.appendChild(actions);
   }else{
@@ -1920,7 +1979,16 @@ function answerM2B(decision){
   const correct = decision === cur.correctDec;
   recordAnswer('m2B', correct, {pot: cur.pot, bet: cur.bet, street: cur.street, given: decision, correctDec: cur.correctDec, draw: cur.draw.name, outs: cur.draw.outs, equity: cur.equity, potOddsPct: cur.correctPct});
   const actionsEl = document.getElementById('m2Actions');
-  if(actionsEl) Array.from(actionsEl.querySelectorAll('button')).forEach(b => b.disabled = true);
+  if(actionsEl){
+    // Mark the buttons the way sub-mode A does, so the right answer is
+    // visible on the control you actually pressed.
+    Array.from(actionsEl.querySelectorAll('button')).forEach(b => {
+      b.disabled = true;
+      const val = b.getAttribute('data-val');
+      if(val === cur.correctDec) b.classList.add('is-correct');
+      else if(val === decision) b.classList.add('is-wrong');
+    });
+  }
   const scen = document.getElementById('m2Scenario');
   if(scen) scen.classList.add(correct ? 'flash-correct' : 'flash-wrong');
   showM2Feedback(correct, decision);
@@ -1954,7 +2022,7 @@ function showM2Feedback(correct, given){
   const totalPot = cur.pot + cur.bet + cur.bet;
   breakdown.innerHTML = `
     Pot before bet: <strong>${fmtMoney(cur.pot)}</strong> · Bet: <strong>${fmtMoney(cur.bet)}</strong> · Your call: <strong>${fmtMoney(cur.bet)}</strong>
-    <span class="math">${cur.bet.toFixed(2)} ÷ ${totalPot.toFixed(2)} = ${cur.correctPct.toFixed(1)}%</span>
+    <span class="math">${fmtNum(cur.bet)} ÷ ${fmtNum(totalPot)} = ${cur.correctPct.toFixed(1)}%</span>
   `;
   body.appendChild(breakdown);
 
@@ -2134,7 +2202,7 @@ function renderHistItem(h, which){
     info.appendChild(el('div', {class:'top'}, [h.hand + ' · ' + givenLabel + (h.correct ? '' : ' → ' + correctLabel)]));
     info.appendChild(el('div', {class:'bot'}, [handCategory(h.hand)]));
     item.appendChild(info);
-    item.appendChild(el('div', {class:'pos-mini'}, [h.position + (h.scenario && h.scenario !== 'open' ? ' · ' + meta.short : '')]));
+    item.appendChild(el('div', {class:'pos-mini'}, [h.position + ' · ' + meta.short]));
   }else{
     if(h.sub === 'A'){
       info.appendChild(el('div', {class:'top'}, [`Pot ${fmtMoney(h.pot)} · Bet ${fmtMoney(h.bet)}`]));
@@ -2246,7 +2314,7 @@ function renderRangesScreen(){
     const stats2 = rangeStats(rangeSel2, rangeScenario);
 
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-top:2px'}, [
-      `${rangeSel1} (${meta.raiseLabel.toLowerCase()} ${stats1.raise}%) — cells with white border differ from ${rangeSel2}`
+      `${rangeSel1} (${meta.raiseLabel.toLowerCase()} ${stats1.raise}%) — outlined cells differ from ${rangeSel2}`
     ]));
     body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, rangeSel2, rangeScenario));
 
@@ -2550,6 +2618,13 @@ function setTableSize(size){
 function resetStats(){
   if(!confirm('Reset all stats? This cannot be undone.')) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  // The reset also reverts tableSize, so the seat list and the range
+  // lookups have to be rebuilt or they stay on the old table size.
+  refreshTableSize();
+  rebuildRangeSets();
+  const applicable = applicablePositions(rangeScenario);
+  rangeSel1 = applicable[0];
+  rangeSel2 = applicable[applicable.length - 1];
   saveState();
   renderSettings();
   updateHomeStats();
@@ -2723,11 +2798,16 @@ function renderGlossary(){
   GLOSSARY.forEach((section, idx) => {
     const isOpen = idx === glossaryOpenSection;
     const sec = el('div', {class:'gloss-section' + (isOpen ? ' open' : '')}, []);
+    // Counted from the data — the hand-written captions had drifted out of
+    // sync with the lists ("24 concepts" over 28 entries).
+    const metaText = (section.isRanking || section.isProb)
+      ? section.meta
+      : section.items.length + ' terms';
     const header = el('button', {class:'gloss-header', onclick: () => toggleGlossSection(idx)}, [
       el('span', {class:'g-icon'}, [section.icon]),
       el('div', {class:'g-body'}, [
         el('div', {class:'g-title'}, [section.section]),
-        el('div', {class:'g-meta'}, [section.meta])
+        el('div', {class:'g-meta'}, [metaText])
       ]),
       el('span', {class:'g-chev'}, ['›'])
     ]);
