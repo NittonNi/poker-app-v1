@@ -3,51 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0e2e22">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="color-scheme" content="light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Poker Trainer">
 <title>Poker Trainer</title>
-<link rel="manifest" id="manifestLink">
-<link rel="apple-touch-icon" id="appleIconLink">
-<link rel="icon" id="faviconLink">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
 <style>
 :root{
-  --bg:#0e3326;
-  --bg2:#143d2e;
-  --bg3:#1a4a36;
-  --felt:#0c4a32;
-  --felt-edge:#5d3a1e;
-  --border:#2a6b50;
-  --text:#f4f1e8;
-  --text-dim:#b8cabf;
-  --text-mute:#8a9a90;
-  --surface:#f7f4ea;
-  --surface-2:#ede6d2;
-  --surface-3:#e3dac4;
-  --surface-border:#cfc5a2;
-  --text-on-light:#1a2620;
-  --text-on-light-dim:#54625a;
-  --text-on-light-mute:#7a8880;
-  --accent:#c9942a;
-  --accent2:#a87a1f;
-  --accent-bright:#e6c068;
-  --accent-glow:rgba(230,192,104,.35);
-  --raise:#2da866;
-  --raise-bright:#3ddc84;
-  --raise-dim:#1c7548;
-  --call:#d4a017;
-  --call-bright:#f5c542;
-  --call-dim:#a18028;
-  --fold:#c64545;
-  --fold-bright:#e85c5c;
-  --fold-dim:#8a3838;
-  --red:#ff6b7a;
-  --white:#f4f6f5;
-  --shadow:0 4px 20px rgba(0,0,0,.42),0 1px 4px rgba(0,0,0,.25);
-  --shadow-light:0 2px 10px rgba(0,0,0,.14);
+  --bg:#f2f2f7;
+  --bg2:#ffffff;
+  --border:rgba(60,60,67,.13);
+  --text:#1c1c1e;
+  --text-dim:rgba(60,60,67,.6);
+  --text-mute:rgba(60,60,67,.38);
+  --surface:#ffffff;
+  --surface-2:#fbfbfd;
+  --surface-3:#f2f2f7;
+  --surface-border:rgba(60,60,67,.1);
+  --text-on-light:#1c1c1e;
+  --text-on-light-dim:rgba(60,60,67,.6);
+  --text-on-light-mute:rgba(60,60,67,.4);
+  --accent:#007aff;
+  --accent2:#0058c7;
+  --accent-bright:#0a84ff;
+  --accent-glow:rgba(0,122,255,.22);
+  /* Each action has a text shade (legible on white) and a fill shade
+     (a block of colour). Using one value for both is what made the
+     orange unreadable in either direction. */
+  --raise:#1a8f4c;
+  --raise-bright:#34c759;
+  --raise-dim:#1f7a3d;
+  --call:#b45309;
+  --call-bright:#ffa726;
+  --call-on-fill:#3d2200;
+  --call-dim:#8a4b00;
+  --fold:#d70015;
+  --fold-bright:#ff453a;
+  --fold-dim:#a8352c;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.07);
+  --shadow-light:0 1px 2px rgba(0,0,0,.03),0 4px 14px rgba(0,0,0,.05);
   --radius:16px;
   --radius-sm:10px;
   --radius-xs:7px;
@@ -65,7 +64,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:16px;overflow:hidden;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
-body{padding-top:var(--safe-top);padding-bottom:var(--safe-bot);background:radial-gradient(ellipse at top,#1f5440 0%,#0a2820 60%)}
+body{padding-top:var(--safe-top);padding-bottom:var(--safe-bot);background:var(--bg)}
 button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0}
 input{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;outline:none}
 
@@ -78,12 +77,12 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 /* ===== HEADER ===== */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;gap:var(--sp2)}
 .topbar .title{font-size:16px;font-weight:700;letter-spacing:.2px;flex:1;text-align:center;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.icon-btn{width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);transition:background .15s var(--ease-std);font-size:20px;line-height:1;color:var(--text)}
-.icon-btn:active{background:rgba(255,255,255,.14)}
+.icon-btn{width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);background:rgba(60,60,67,.05);border:1px solid rgba(60,60,67,.08);transition:background .15s var(--ease-std);font-size:20px;line-height:1;color:var(--text)}
+.icon-btn:active{background:rgba(60,60,67,.12)}
 .topbar .right{display:flex;gap:var(--sp2)}
 
-.statbar{display:flex;justify-content:space-around;gap:var(--sp2);padding:var(--sp2) var(--sp4) 14px;border-bottom:1px solid rgba(255,255,255,.06)}
-.stat-chip{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius-sm);padding:var(--sp2) var(--sp2);text-align:center;min-width:0}
+.statbar{display:flex;justify-content:space-around;gap:var(--sp2);padding:var(--sp2) var(--sp4) 14px;border-bottom:1px solid var(--border)}
+.stat-chip{flex:1;background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--radius-sm);padding:var(--sp2) var(--sp2);text-align:center;min-width:0}
 .stat-chip .v{font-size:19px;font-weight:800;color:var(--accent);line-height:1.1}
 .stat-chip .l{font-size:var(--t-xs);color:var(--text-mute);text-transform:uppercase;letter-spacing:.7px;margin-top:3px;font-weight:600}
 .stat-chip.streak .v{color:var(--raise)}
@@ -91,12 +90,16 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 
 /* ===== HOME ===== */
 .home-body{flex:1;display:flex;flex-direction:column;padding:var(--sp3) var(--sp4) var(--sp6);gap:var(--sp3);overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Scrolling flex columns shrink their children before they scroll, which
+   silently squashed every card on a long screen (the Glossary collapsed to
+   empty bars). Children keep their own height; the column scrolls instead. */
+.home-body>*,.ex-body>*{flex-shrink:0}
 .hero{text-align:center;padding:var(--sp2) var(--sp2) var(--sp1)}
-.hero h1{margin:0;font-size:var(--t-3xl);font-weight:800;letter-spacing:.3px;background:linear-gradient(175deg,#fff 10%,#bcd9cb 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1{margin:0;font-size:var(--t-3xl);font-weight:800;letter-spacing:.3px;color:var(--text)}
 .hero p{margin:var(--sp1) 0 0;font-size:var(--t-base);color:var(--text-dim)}
 
-.module-card{position:relative;background:linear-gradient(155deg,var(--surface) 0%,var(--surface-2) 100%);border:1px solid var(--surface-border);border-radius:var(--radius);padding:var(--sp4) 18px;text-align:left;box-shadow:var(--shadow);min-height:108px;display:flex;flex-direction:column;justify-content:space-between;width:100%;transition:transform .14s var(--ease-out),box-shadow .14s ease;color:var(--text-on-light)}
-.module-card:active{transform:scale(.975);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.module-card{position:relative;background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--radius);padding:var(--sp4) 18px;text-align:left;box-shadow:var(--shadow);min-height:108px;display:flex;flex-direction:column;justify-content:space-between;width:100%;transition:transform .14s var(--ease-out),box-shadow .14s ease;color:var(--text-on-light)}
+.module-card:active{transform:scale(.975);box-shadow:var(--shadow-light)}
 .module-card .mc-top{display:flex;align-items:flex-start;justify-content:space-between}
 .module-card .mc-icon{font-size:22px;line-height:1;margin-top:2px}
 .module-card .label{font-size:var(--t-xs);text-transform:uppercase;letter-spacing:1.1px;color:var(--accent);font-weight:800}
@@ -110,14 +113,14 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .module-card .lock{position:absolute;top:14px;right:14px;font-size:16px;color:var(--text-on-light-mute)}
 
 .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
-.sum{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 12px}
+.sum{background:var(--surface);border:1px solid var(--surface-border);border-radius:10px;padding:10px 12px}
 .sum .v{font-size:18px;font-weight:700;color:var(--text)}
 .sum .l{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px}
 
 /* ===== EXERCISE ===== */
 .ex-body{flex:1;display:flex;flex-direction:column;padding:12px 16px 20px;gap:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-.position-tag{display:inline-flex;align-items:center;gap:8px;align-self:center;background:rgba(230,192,104,.12);border:1px solid rgba(230,192,104,.35);color:var(--accent);padding:8px 16px;border-radius:30px;font-weight:700;font-size:14px;letter-spacing:.5px}
+.position-tag{display:inline-flex;align-items:center;gap:8px;align-self:center;background:rgba(0,122,255,.1);border:1px solid rgba(0,122,255,.25);color:var(--accent);padding:8px 16px;border-radius:30px;font-weight:700;font-size:14px;letter-spacing:.5px}
 .position-tag .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 
 .hand-display{display:flex;justify-content:center;gap:12px;padding:14px 0 4px}
@@ -125,7 +128,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .hand-display.deal-in .card:nth-child(1){animation-delay:0ms}
 .hand-display.deal-in .card:nth-child(2){animation-delay:90ms}
 @keyframes dealIn{from{opacity:0;transform:translateY(-14px) rotate(-4deg) scale(.92)}to{opacity:1;transform:translateY(0) rotate(0) scale(1)}}
-.card{width:82px;height:116px;background:#fafafa;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9px 7px;box-shadow:0 6px 18px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.06);color:#222;font-weight:700;position:relative}
+.card{width:82px;height:116px;background:#ffffff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9px 7px;box-shadow:var(--shadow),inset 0 0 0 1px rgba(0,0,0,.06);color:#222;font-weight:700;position:relative}
 .card.red{color:#d9263a}
 .card.black{color:#1a1a1a}
 .card .rank{font-size:28px;line-height:1;letter-spacing:-1px}
@@ -142,59 +145,59 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .card.small .corner-tl .r,.card.small .corner-br .r{font-size:10px}
 
 .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:6px 0 2px}
-.act{height:62px;border-radius:14px;font-weight:800;font-size:15px;letter-spacing:.6px;border:1px solid transparent;transition:transform .12s var(--ease-out),box-shadow .18s ease,filter .15s ease;display:flex;align-items:center;justify-content:center;text-transform:uppercase;position:relative;overflow:hidden}
-.act::after{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:rgba(255,255,255,.35);pointer-events:none}
-.act:active{transform:scale(.95)}
-.act.raise{background:linear-gradient(180deg,#45e58c 0%,#2da866 60%,#1f8a4f 100%);color:#062818;box-shadow:0 5px 14px -4px rgba(45,168,102,.55),inset 0 -2px 0 rgba(0,0,0,.18)}
-.act.call{background:linear-gradient(180deg,#f7cd56 0%,#d4a017 60%,#a87f12 100%);color:#3a2a05;box-shadow:0 5px 14px -4px rgba(212,160,23,.5),inset 0 -2px 0 rgba(0,0,0,.18)}
-.act.fold{background:linear-gradient(180deg,#ed6a6a 0%,#c64545 60%,#9d3434 100%);color:#290606;box-shadow:0 5px 14px -4px rgba(198,69,69,.5),inset 0 -2px 0 rgba(0,0,0,.18)}
-.act:hover{filter:brightness(1.05)}
-.act:disabled{opacity:.45;filter:saturate(.4)}
+.act{height:58px;border-radius:14px;font-weight:700;font-size:15px;letter-spacing:.3px;border:1px solid transparent;transition:transform .12s var(--ease-out),opacity .15s ease;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.act:active{transform:scale(.96);opacity:.85}
+.act.raise{background:var(--raise);color:#ffffff}
+.act.call{background:var(--call-bright);color:var(--call-on-fill)}
+.act.fold{background:rgba(60,60,67,.06);color:var(--fold)}
+.act:disabled{opacity:.4}
+.act.is-correct,.act.is-wrong{opacity:1}
+.act.is-correct{box-shadow:inset 0 0 0 3px var(--raise)}
+.act.is-wrong{box-shadow:inset 0 0 0 3px var(--fold)}
 
 /* ===== COMPACT FEEDBACK (fast preflop) ===== */
-.compact-fb{display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;animation:fadeIn .2s ease}
-.compact-fb.correct{border-color:rgba(61,220,132,.45);background:rgba(61,220,132,.09)}
-.compact-fb.wrong{border-color:rgba(232,92,92,.45);background:rgba(232,92,92,.08)}
+.compact-fb{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--surface-border);border-radius:12px;padding:12px 14px;animation:fadeIn .2s ease}
+.compact-fb.correct{border-color:rgba(47,168,79,.35);background:rgba(47,168,79,.08)}
+.compact-fb.wrong{border-color:rgba(255,59,48,.3);background:rgba(255,59,48,.06)}
 .compact-fb .head{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:15px}
 .compact-fb.correct .head{color:var(--raise)}
 .compact-fb.wrong .head{color:var(--fold)}
-.compact-fb .head .badge{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.5px;background:rgba(255,255,255,.12);color:var(--text);text-transform:uppercase}
+.compact-fb .head .badge{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.4px;background:rgba(60,60,67,.08);color:var(--text)}
 .compact-fb .why{font-size:12.5px;color:var(--text-dim);line-height:1.5}
 .compact-fb .why strong{color:var(--text)}
 
 .answer-panel{display:flex;flex-direction:column;gap:10px;animation:fadeUp .25s var(--ease-out)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.continue-btn{width:100%;height:56px;border-radius:14px;background:linear-gradient(180deg,#eecd80 0%,var(--accent) 60%,var(--accent2) 100%);color:#1a1409;font-weight:800;font-size:15px;letter-spacing:.7px;text-transform:uppercase;box-shadow:0 5px 14px -4px rgba(201,148,42,.55),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.15);transition:transform .12s var(--ease-out),filter .15s ease}
-.continue-btn:active{transform:scale(.98)}
-.continue-btn:hover{filter:brightness(1.05)}
+.continue-btn{width:100%;height:54px;border-radius:14px;background:var(--accent);color:#ffffff;font-weight:700;font-size:15px;letter-spacing:.2px;transition:transform .12s var(--ease-out),opacity .15s ease}
+.continue-btn:active{transform:scale(.98);opacity:.85}
 
-.auto-bar{position:relative;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:2px}
+.auto-bar{position:relative;height:3px;background:rgba(60,60,67,.1);border-radius:2px;overflow:hidden;margin-top:2px}
 .auto-bar::after{content:"";position:absolute;left:0;top:0;height:100%;background:var(--raise);width:0%;animation:fillBar .75s linear forwards}
 @keyframes fillBar{from{width:0}to{width:100%}}
 
 /* ===== GRID ===== */
 .grid-wrap{margin:0;padding:0}
 .grid-title{font-size:12px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.8px;margin:4px 0 8px;text-align:center}
-.range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;padding:6px;background:rgba(0,0,0,.25);border-radius:10px;border:1px solid rgba(255,255,255,.05)}
-.range-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border-radius:3px;background:rgba(255,255,255,.04);color:var(--text-dim);position:relative;cursor:pointer;transition:transform .08s ease}
+.range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;padding:6px;background:var(--surface-3);border-radius:10px;border:1px solid var(--surface-border)}
+.range-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border-radius:3px;background:#ffffff;color:var(--text-mute);position:relative;cursor:pointer;transition:transform .08s ease}
 .range-cell:active{transform:scale(1.15);z-index:2}
-.range-cell.raise{background:var(--raise);color:#06281a}
-.range-cell.call{background:var(--call);color:#3a2a05}
-.range-cell.fold{background:rgba(232,92,92,.18);color:#a35858}
+.range-cell.raise{background:var(--raise);color:#ffffff}
+.range-cell.call{background:var(--call-bright);color:var(--call-on-fill)}
+.range-cell.fold{background:rgba(255,59,48,.1);color:var(--fold-dim)}
 .range-cell.highlight{outline:2px solid var(--accent);outline-offset:1px;z-index:3}
 .range-cell.highlight::after{content:"";position:absolute;inset:-3px;border:2px solid var(--accent);border-radius:5px;animation:pulse 1.4s ease infinite}
-.range-cell.diff{box-shadow:inset 0 0 0 2px #fff}
+.range-cell.diff{box-shadow:inset 0 0 0 2px var(--accent)}
 
 .grid-legend{display:flex;justify-content:center;gap:14px;margin-top:8px;font-size:11px;color:var(--text-dim)}
 .legend-item{display:flex;align-items:center;gap:5px}
 .legend-dot{width:10px;height:10px;border-radius:3px}
 .legend-dot.raise{background:var(--raise)}
-.legend-dot.call{background:var(--call)}
-.legend-dot.fold{background:rgba(232,92,92,.4)}
+.legend-dot.call{background:var(--call-bright)}
+.legend-dot.fold{background:rgba(255,59,48,.4)}
 
 /* ===== POT ODDS ===== */
-.scenario{background:linear-gradient(160deg,var(--surface) 0%,var(--surface-2) 100%);border:1px solid var(--surface-border);border-radius:var(--radius);padding:14px 16px;text-align:center;box-shadow:var(--shadow);color:var(--text-on-light)}
+.scenario{background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--radius);padding:14px 16px;text-align:center;box-shadow:var(--shadow);color:var(--text-on-light)}
 .scenario .row{display:flex;justify-content:space-between;align-items:center;padding:7px 4px;font-size:14px;border-bottom:1px dashed rgba(0,0,0,.08)}
 .scenario .row:last-child{border-bottom:none}
 .scenario .row .k{color:var(--text-on-light-dim);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
@@ -202,43 +205,44 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .scenario .row .v.big{color:var(--accent);font-size:20px}
 
 .choice-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.choice-btn{height:64px;border-radius:14px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);font-weight:700;font-size:18px;color:var(--text);transition:transform .1s ease,background .15s ease}
+.choice-btn{height:64px;border-radius:14px;background:var(--surface);border:1px solid var(--surface-border);font-weight:700;font-size:18px;color:var(--text);box-shadow:var(--shadow-light);transition:transform .1s ease,background .15s ease}
 .choice-btn:active{transform:scale(.95)}
-.choice-btn:hover{background:rgba(255,255,255,.08)}
-.choice-btn:disabled{opacity:.5;filter:saturate(.4)}
-.choice-btn.correct{background:rgba(61,220,132,.18);border-color:var(--raise);color:var(--raise)}
-.choice-btn.wrong{background:rgba(232,92,92,.15);border-color:var(--fold);color:var(--fold)}
-.choice-btn.reveal{background:rgba(61,220,132,.18);border-color:var(--raise);color:var(--raise)}
+.choice-btn:disabled{opacity:.5}
+.choice-btn.correct{background:rgba(47,168,79,.12);border-color:var(--raise);color:var(--raise)}
+.choice-btn.wrong{background:rgba(255,59,48,.1);border-color:var(--fold);color:var(--fold)}
+.choice-btn.reveal{background:rgba(47,168,79,.12);border-color:var(--raise);color:var(--raise)}
 
-.breakdown{background:rgba(255,255,255,.03);border-left:3px solid var(--accent);border-radius:8px;padding:11px 14px;font-size:12.5px;line-height:1.7;color:var(--text-dim)}
+.breakdown{background:var(--surface);border:1px solid var(--surface-border);border-left:3px solid var(--accent);border-radius:8px;padding:11px 14px;font-size:12.5px;line-height:1.7;color:var(--text-dim)}
 .breakdown strong{color:var(--text)}
 .breakdown .math{font-family:"SF Mono","Monaco",monospace;color:var(--accent);font-size:13px;padding:4px 0;display:block}
 
-.draw-card{background:rgba(230,192,104,.08);border:1px solid rgba(230,192,104,.25);border-radius:10px;padding:12px 14px;text-align:center}
+.draw-card{background:rgba(0,122,255,.06);border:1px solid rgba(0,122,255,.2);border-radius:10px;padding:12px 14px;text-align:center}
 .draw-card .draw-name{font-size:15px;font-weight:700;color:var(--accent)}
 .draw-card .draw-meta{font-size:12px;color:var(--text-dim);margin-top:3px}
 
 .comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
-.comp-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;text-align:center}
+.comp-box{background:var(--surface);border:1px solid var(--surface-border);border-radius:10px;padding:10px;text-align:center}
 .comp-box .l{font-size:10px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px}
 .comp-box .v{font-size:22px;font-weight:800;color:var(--accent);margin-top:4px}
-.comp-box.winner{border-color:var(--raise);background:rgba(61,220,132,.08)}
+.comp-box.winner{border-color:var(--raise);background:rgba(47,168,79,.08)}
 .comp-box.winner .v{color:var(--raise)}
+.comp-box.loser{border-color:var(--fold);background:rgba(255,59,48,.06)}
+.comp-box.loser .v{color:var(--fold)}
 
 .subselect{display:flex;gap:10px;padding:6px 16px 0}
-.sub-pill{flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);text-align:center;font-size:13px;font-weight:600;color:var(--text-dim)}
-.sub-pill.active{background:rgba(230,192,104,.15);border-color:rgba(230,192,104,.4);color:var(--accent)}
+.sub-pill{flex:1;padding:10px;border-radius:10px;background:var(--surface);border:1px solid var(--surface-border);text-align:center;font-size:13px;font-weight:600;color:var(--text-dim)}
+.sub-pill.active{background:rgba(0,122,255,.1);border-color:rgba(0,122,255,.35);color:var(--accent)}
 .sub-pill.locked{opacity:.45}
 .sub-pill .progress{font-size:10px;color:var(--text-mute);margin-top:2px;font-weight:400}
 
 /* ===== POSITION TABS ===== */
 .pos-tab-row{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .pos-tab-row::-webkit-scrollbar{display:none}
-.pos-tab{flex-shrink:0;padding:9px 14px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:600;color:var(--text-dim);white-space:nowrap}
-.pos-tab.active{background:var(--accent);color:#1a1409;border-color:var(--accent)}
+.pos-tab{flex-shrink:0;padding:9px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--surface-border);font-size:13px;font-weight:600;color:var(--text-dim);white-space:nowrap}
+.pos-tab.active{background:var(--accent);color:#ffffff;border-color:var(--accent)}
 
 .range-stats{display:flex;justify-content:space-around;gap:8px;padding:0 4px 6px;font-size:11px}
-.range-stat{background:rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;text-align:center;flex:1}
+.range-stat{background:var(--surface);border:1px solid var(--surface-border);border-radius:8px;padding:7px 10px;text-align:center;flex:1}
 .range-stat .v{font-size:16px;font-weight:800}
 .range-stat .l{font-size:9.5px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
 .range-stat.raise .v{color:var(--raise)}
@@ -247,30 +251,30 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 
 /* ===== MINI GRIDS ===== */
 .mini-grids{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.mini-grid-tile{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:9px;transition:transform .12s ease}
+.mini-grid-tile{background:var(--surface);border:1px solid var(--surface-border);border-radius:10px;padding:9px;transition:transform .12s ease}
 .mini-grid-tile:active{transform:scale(.96)}
 .mini-grid-tile.active-tile{border-color:var(--accent)}
 .mini-grid-tile .tile-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .mini-grid-tile .tile-pos{font-size:13px;font-weight:700;color:var(--accent)}
 .mini-grid-tile .tile-pct{font-size:10.5px;color:var(--text-mute);font-weight:600}
-.mini-range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:1px;padding:2px;background:rgba(0,0,0,.3);border-radius:4px}
-.mini-cell{aspect-ratio:1;background:rgba(255,255,255,.03);border-radius:1px}
+.mini-range-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:1px;padding:2px;background:var(--surface-3);border-radius:4px}
+.mini-cell{aspect-ratio:1;background:#ffffff;border-radius:1px}
 .mini-cell.raise{background:var(--raise)}
-.mini-cell.call{background:var(--call)}
-.mini-cell.fold{background:rgba(232,92,92,.25)}
+.mini-cell.call{background:var(--call-bright)}
+.mini-cell.fold{background:rgba(255,59,48,.3)}
 
 .compare-toggle{display:flex;gap:8px;padding:0 16px 6px}
-.compare-toggle .ct-btn{flex:1;padding:9px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12.5px;color:var(--text-dim);font-weight:600}
-.compare-toggle .ct-btn.on{background:rgba(230,192,104,.15);border-color:rgba(230,192,104,.4);color:var(--accent)}
+.compare-toggle .ct-btn{flex:1;padding:9px;border-radius:9px;background:var(--surface);border:1px solid var(--surface-border);font-size:12.5px;color:var(--text-dim);font-weight:600}
+.compare-toggle .ct-btn.on{background:rgba(0,122,255,.1);border-color:rgba(0,122,255,.35);color:var(--accent)}
 
 .compare-row{display:flex;gap:8px;padding:0 16px 8px}
-.compare-row .sel{flex:1;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:8px 10px}
+.compare-row .sel{flex:1;display:flex;flex-direction:column;gap:4px;background:var(--surface);border:1px solid var(--surface-border);border-radius:9px;padding:8px 10px}
 .compare-row .sel .l{font-size:9.5px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.4px}
 .compare-row .sel select{font-size:14px;color:var(--text);font-weight:700;background:transparent;border:none;outline:none;width:100%}
 .compare-row .sel select option{background:var(--bg2);color:var(--text)}
 
 /* ===== POSTFLOP LESSONS ===== */
-.lesson-card{background:linear-gradient(160deg,var(--surface) 0%,var(--surface-2) 100%);border:1px solid var(--surface-border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);animation:fadeIn .25s ease;color:var(--text-on-light)}
+.lesson-card{background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);animation:fadeIn .25s ease;color:var(--text-on-light)}
 .lesson-card .lesson-num{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;font-weight:800}
 .lesson-card .lesson-title{font-size:22px;font-weight:800;margin-top:4px;line-height:1.2;color:var(--text-on-light)}
 .lesson-card .lesson-subtitle{font-size:13px;color:var(--text-on-light-dim);margin-top:2px;font-style:italic}
@@ -280,95 +284,97 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 
 .lesson-body{font-size:14px;color:var(--text-on-light);line-height:1.6;margin-top:10px}
 .lesson-body strong{color:var(--accent2)}
-.lesson-example{background:rgba(0,0,0,.06);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:13px;color:var(--text-on-light-dim);line-height:1.55}
-.lesson-takeaway{background:rgba(45,168,102,.12);border:1px solid rgba(45,168,102,.35);border-radius:9px;padding:11px 13px;margin-top:12px;font-size:13.5px;color:var(--text-on-light);line-height:1.5;font-weight:600}
+.lesson-example{background:var(--surface-3);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:13px;color:var(--text-on-light-dim);line-height:1.55}
+.lesson-takeaway{background:rgba(47,168,79,.1);border:1px solid rgba(47,168,79,.3);border-radius:9px;padding:11px 13px;margin-top:12px;font-size:13.5px;color:var(--text-on-light);line-height:1.5;font-weight:600}
 .lesson-takeaway::before{content:"💡 ";margin-right:2px}
 
 .lesson-nav{display:flex;gap:10px;padding:8px 0 0}
-.lesson-nav .nav-btn{flex:1;height:50px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-weight:700;font-size:14px;color:var(--text);text-transform:uppercase;letter-spacing:.4px}
+.lesson-nav .nav-btn{flex:1;height:50px;border-radius:12px;background:var(--surface);border:1px solid var(--surface-border);font-weight:700;font-size:14px;color:var(--text)}
 .lesson-nav .nav-btn:disabled{opacity:.35}
-.lesson-nav .nav-btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#1a1409;border:none}
+.lesson-nav .nav-btn.primary{background:var(--accent);color:#ffffff;border:none}
 
 .lesson-dots{display:flex;justify-content:center;gap:6px;padding:6px 0 2px}
-.lesson-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .2s ease}
+.lesson-dot{width:8px;height:8px;border-radius:50%;background:rgba(60,60,67,.15);transition:background .2s ease}
 .lesson-dot.active{background:var(--accent);transform:scale(1.2)}
 .lesson-dot.done{background:var(--raise-dim)}
 
-.lesson-quiz{background:rgba(230,192,104,.06);border:1px solid rgba(230,192,104,.25);border-radius:12px;padding:14px;margin-top:12px}
+.lesson-quiz{background:rgba(0,122,255,.05);border:1px solid rgba(0,122,255,.2);border-radius:12px;padding:14px;margin-top:12px}
 .lesson-quiz .q{font-size:14px;font-weight:700;color:var(--accent);text-align:center;margin-bottom:10px}
 .lesson-quiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.lesson-quiz .opts button{padding:12px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-weight:700;font-size:14px;color:var(--text)}
-.lesson-quiz .opts button.correct{background:rgba(61,220,132,.2);border-color:var(--raise);color:var(--raise)}
-.lesson-quiz .opts button.wrong{background:rgba(232,92,92,.18);border-color:var(--fold);color:var(--fold)}
+.lesson-quiz .opts button{padding:12px;border-radius:9px;background:var(--surface);border:1px solid var(--surface-border);font-weight:700;font-size:14px;color:var(--text)}
+.lesson-quiz .opts button.correct{background:rgba(47,168,79,.15);border-color:var(--raise);color:var(--raise)}
+.lesson-quiz .opts button.wrong{background:rgba(255,59,48,.12);border-color:var(--fold);color:var(--fold)}
 .lesson-quiz .feedback{margin-top:10px;font-size:12.5px;color:var(--text-dim);line-height:1.5;text-align:center}
 
 /* ===== HISTORY ===== */
-.history-summary{background:linear-gradient(135deg,#1a4a36,#0a2820);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:8px}
+.history-summary{background:var(--surface);border:1px solid var(--surface-border);border-radius:14px;padding:16px;margin-bottom:8px;box-shadow:var(--shadow-light)}
 .history-summary .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
 .history-summary .stat .v{font-size:22px;font-weight:800;color:var(--accent)}
 .history-summary .stat .l{font-size:10px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px}
 .history-summary .stat.correct .v{color:var(--raise)}
 .history-summary .stat.wrong .v{color:var(--fold)}
-.history-summary .title{font-size:14px;font-weight:700;color:var(--accent)}
+.history-summary .title{font-size:14px;font-weight:700;color:var(--text)}
 
 .history-filter{display:flex;gap:6px;padding:6px 0 8px}
-.history-filter button{flex:1;padding:8px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600;color:var(--text-dim)}
-.history-filter button.on{background:rgba(230,192,104,.15);border-color:rgba(230,192,104,.4);color:var(--accent)}
+.history-filter button{flex:1;padding:8px;border-radius:8px;background:var(--surface);border:1px solid var(--surface-border);font-size:12px;font-weight:600;color:var(--text-dim)}
+.history-filter button.on{background:rgba(0,122,255,.1);border-color:rgba(0,122,255,.35);color:var(--accent)}
 
 .history-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;padding-right:4px;-webkit-overflow-scrolling:touch}
-.history-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:9px 12px;font-size:13px}
-.history-item.wrong{border-color:rgba(232,92,92,.3)}
-.history-item.correct{border-color:rgba(61,220,132,.25)}
+.history-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--surface-border);border-radius:8px;padding:9px 12px;font-size:13px}
+.history-item.wrong{border-color:rgba(255,59,48,.3)}
+.history-item.correct{border-color:rgba(47,168,79,.3)}
 .history-item .mark{font-size:18px;font-weight:800;width:22px;text-align:center}
 .history-item .mark.c{color:var(--raise)}
 .history-item .mark.w{color:var(--fold)}
 .history-item .info .top{font-weight:700;color:var(--text);font-size:13px}
 .history-item .info .bot{font-size:11.5px;color:var(--text-dim);margin-top:1px}
-.history-item .pos-mini{font-size:10.5px;color:var(--accent);background:rgba(230,192,104,.1);padding:2px 6px;border-radius:5px;font-weight:700}
+.history-item .pos-mini{font-size:10.5px;color:var(--accent);background:rgba(0,122,255,.08);padding:2px 6px;border-radius:5px;font-weight:700}
 
 .empty-state{text-align:center;padding:30px 16px;color:var(--text-mute);font-size:13.5px;line-height:1.5}
 .empty-state .icn{font-size:32px;opacity:.5;margin-bottom:8px}
 
 /* ===== OVERLAY ===== */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .overlay.show{opacity:1;pointer-events:auto}
 .overlay-sheet{width:100%;max-width:520px;background:var(--bg2);border-radius:20px 20px 0 0;padding:18px 16px calc(20px + var(--safe-bot));max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);position:relative}
 .overlay.show .overlay-sheet{transform:translateY(0)}
-.overlay-handle{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 14px}
+.overlay-handle{width:40px;height:4px;background:rgba(60,60,67,.25);border-radius:2px;margin:0 auto 14px}
 .overlay-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:12px}
-.overlay-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:18px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text)}
+.overlay-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:18px;background:rgba(60,60,67,.07);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text)}
 
 .ref-table{width:100%;border-collapse:collapse;margin-bottom:18px}
-.ref-table th,.ref-table td{padding:8px 6px;text-align:center;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)}
-.ref-table th{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px;font-weight:600;background:rgba(255,255,255,.02)}
+.ref-table th,.ref-table td{padding:8px 6px;text-align:center;font-size:13px;border-bottom:1px solid var(--border)}
+.ref-table th{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px;font-weight:600;background:transparent}
 .ref-table td:first-child{text-align:left;font-weight:600;color:var(--text)}
 
 /* ===== SETTINGS ===== */
 .settings-list{display:flex;flex-direction:column;gap:10px;padding:10px 0}
-.setting-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;min-height:var(--tap)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--surface);border:1px solid var(--surface-border);border-radius:12px;min-height:var(--tap)}
 .setting-row .desc{font-size:12px;color:var(--text-dim);margin-top:2px}
 .setting-row .label{font-size:15px;font-weight:600}
-.toggle{position:relative;width:52px;height:30px;background:rgba(255,255,255,.1);border-radius:15px;transition:background .2s ease;cursor:pointer}
-.toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:transform .2s ease}
+.toggle{position:relative;width:52px;height:30px;background:rgba(60,60,67,.16);border-radius:15px;transition:background .2s ease;cursor:pointer}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.15);transition:transform .2s ease}
 .toggle.on{background:var(--raise)}
 .toggle.on::after{transform:translateX(22px)}
-.seg-ctrl{display:flex;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:3px;gap:3px}
-.seg-ctrl button{flex:1;padding:11px 8px;border-radius:8px;background:transparent;color:var(--text-dim);font-size:13px;font-weight:700;letter-spacing:.3px;transition:background .15s ease,color .15s ease}
-.seg-ctrl button.on{background:var(--accent);color:#1a1409;box-shadow:0 1px 4px rgba(230,192,104,.3)}
+.seg-ctrl{display:flex;background:var(--surface-3);border:1px solid var(--surface-border);border-radius:11px;padding:3px;gap:3px}
+.seg-ctrl button{flex:1;padding:11px 8px;border-radius:8px;background:transparent;color:var(--text-dim);font-size:13px;font-weight:700;letter-spacing:.1px;transition:background .15s ease,color .15s ease}
+.seg-ctrl button.on{background:var(--bg2);color:var(--accent);box-shadow:var(--shadow-light)}
 .seg-ctrl button:active{transform:scale(.98)}
-.danger-btn{width:100%;background:rgba(232,92,92,.1);border:1px solid rgba(232,92,92,.3);color:var(--fold);padding:14px;border-radius:12px;font-weight:600;min-height:var(--tap)}
-.danger-btn:active{background:rgba(232,92,92,.2)}
+.mini-btn{flex-shrink:0;padding:9px 16px;border-radius:9px;background:rgba(0,122,255,.1);color:var(--accent);font-size:13px;font-weight:700}
+.mini-btn:disabled{opacity:.5}
+.danger-btn{width:100%;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.25);color:var(--fold);padding:14px;border-radius:12px;font-weight:600;min-height:var(--tap)}
+.danger-btn:active{background:rgba(255,59,48,.16)}
 
 /* ===== UTILS ===== */
-.hand-label{font-family:"SF Mono","Monaco",monospace;background:rgba(230,192,104,.15);color:var(--accent);padding:2px 8px;border-radius:5px;font-weight:700}
-.cat-label{display:inline-block;background:rgba(255,255,255,.06);padding:3px 8px;border-radius:5px;font-size:11px;color:var(--text-dim);margin:2px 0}
+.hand-label{font-family:"SF Mono","Monaco",monospace;background:rgba(0,122,255,.1);color:var(--accent);padding:2px 8px;border-radius:5px;font-weight:700}
+.cat-label{display:inline-block;background:rgba(60,60,67,.08);padding:3px 8px;border-radius:5px;font-size:11px;color:var(--text-dim);margin:2px 0}
 .pos-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.pos-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px}
+.pos-stat{background:var(--surface);border:1px solid var(--surface-border);border-radius:10px;padding:10px}
 .pos-stat .n{font-size:12px;color:var(--text-dim);font-weight:600}
-.pos-stat .b{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin:6px 0 4px;overflow:hidden}
+.pos-stat .b{height:6px;background:var(--surface-3);border-radius:3px;margin:6px 0 4px;overflow:hidden}
 .pos-stat .b-fill{height:100%;background:var(--raise);border-radius:3px;transition:width .3s ease}
-.pos-stat .b-fill.low{background:var(--fold)}
-.pos-stat .b-fill.mid{background:var(--call)}
+.pos-stat .b-fill.low{background:var(--fold-bright)}
+.pos-stat .b-fill.mid{background:var(--call-bright)}
 .pos-stat .v{font-size:11px;color:var(--text-mute)}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -378,8 +384,8 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .shake{animation:shake .35s ease}
 .flash-correct{animation:flashOk .5s ease}
 .flash-wrong{animation:flashBad .5s ease}
-@keyframes flashOk{0%{box-shadow:0 0 0 0 rgba(61,220,132,0)}30%{box-shadow:0 0 0 6px rgba(61,220,132,.35)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
-@keyframes flashBad{0%{box-shadow:0 0 0 0 rgba(232,92,92,0)}30%{box-shadow:0 0 0 6px rgba(232,92,92,.35)}100%{box-shadow:0 0 0 0 rgba(232,92,92,0)}}
+@keyframes flashOk{0%{box-shadow:0 0 0 0 rgba(47,168,79,0)}30%{box-shadow:0 0 0 6px rgba(47,168,79,.3)}100%{box-shadow:0 0 0 0 rgba(47,168,79,0)}}
+@keyframes flashBad{0%{box-shadow:0 0 0 0 rgba(255,59,48,0)}30%{box-shadow:0 0 0 6px rgba(255,59,48,.28)}100%{box-shadow:0 0 0 0 rgba(255,59,48,0)}}
 
 @media (max-width:360px){
   .card{width:72px;height:102px}
@@ -393,34 +399,30 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 /* ===== POKER TABLE VIZ ===== */
 .poker-table-wrap{position:relative;width:100%;padding:6px 4px 0;margin-bottom:2px}
 .poker-table{position:relative;width:100%;aspect-ratio:16/10;max-width:460px;margin:0 auto}
-.table-felt{position:absolute;inset:8% 4%;background:radial-gradient(ellipse at center,#1a5a3e 0%,#0a3320 100%);border-radius:50%;border:4px solid #6b4520;box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 0 32px rgba(0,0,0,.35),inset 0 0 0 2px rgba(0,0,0,.2)}
+.table-felt{position:absolute;inset:8% 4%;background:var(--surface-3);border-radius:50%;border:1px solid var(--surface-border)}
 .table-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:1}
-.pot-label{font-size:10px;color:var(--accent-bright);text-transform:uppercase;letter-spacing:1px;font-weight:700;background:rgba(0,0,0,.35);padding:4px 10px;border-radius:12px;border:1px solid rgba(230,192,104,.3);white-space:nowrap}
+.pot-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:700;background:var(--bg2);padding:4px 10px;border-radius:12px;border:1px solid var(--surface-border);white-space:nowrap}
 .seat{position:absolute;width:46px;text-align:center;transform:translate(-50%,-50%);z-index:3;transition:opacity .2s ease,filter .25s ease,transform .15s ease}
-.seat-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,#3a5048,#1f3028);margin:0 auto;border:2px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.55);font-weight:700;box-shadow:0 2px 5px rgba(0,0,0,.4)}
-.seat-name{font-size:9px;color:rgba(255,255,255,.7);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-.seat.hero .seat-avatar{background:linear-gradient(145deg,var(--accent-bright),var(--accent));border-color:#fff;color:#3a2a05;font-size:10px;box-shadow:0 0 14px var(--accent-glow),0 2px 5px rgba(0,0,0,.5)}
-.seat.hero .seat-name{color:var(--accent-bright)}
-.seat.folded{opacity:.32;filter:grayscale(.8)}
-.seat.folded .seat-avatar{background:linear-gradient(145deg,#2a3530,#1a2520)}
+.seat-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg2);margin:0 auto;border:2px solid var(--surface-border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-mute);font-weight:700}
+.seat-name{font-size:9px;color:var(--text-dim);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+.seat.hero .seat-avatar{background:var(--accent);border-color:var(--accent);color:#ffffff;font-size:10px;box-shadow:0 0 0 4px var(--accent-glow)}
+.seat.hero .seat-name{color:var(--accent);font-weight:800}
+.seat.folded{opacity:.35;filter:grayscale(.6)}
 .seat.acting .seat-avatar{animation:actingPulse 1.2s ease infinite}
-.seat.raised .seat-avatar{border-color:var(--fold-bright);box-shadow:0 0 10px rgba(232,92,92,.45)}
-.seat.raised .seat-name::after{content:" R";color:var(--fold-bright);font-weight:800}
-.seat-chip{position:absolute;left:50%;top:-2px;transform:translate(-50%,-100%);width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fbe6a0 0%,#e6c068 45%,#8a6a1a 85%,#5a4310 100%);box-shadow:0 2px 4px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.2);z-index:4}
-.seat-chip.large{width:18px;height:18px}
-.btn-marker{position:absolute;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#e0e0e0 50%,#a0a0a0 100%);color:#1a1a1a;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.5);z-index:5;transform:translate(-50%,-50%);border:1px solid rgba(0,0,0,.2)}
-.center-chip{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);display:flex;gap:2px;z-index:2}
-.center-chip .c{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fbe6a0 0%,#e6c068 45%,#8a6a1a 100%);box-shadow:0 1px 3px rgba(0,0,0,.5)}
-.flying-chip{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fbe6a0 0%,#e6c068 45%,#8a6a1a 100%);box-shadow:0 2px 4px rgba(0,0,0,.5);transform:translate(-50%,-50%);z-index:6;transition:left .35s cubic-bezier(.4,.0,.2,1),top .35s cubic-bezier(.4,.0,.2,1),opacity .25s ease}
+.seat.raised .seat-avatar{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.seat.raised .seat-name::after{content:" •";color:var(--accent);font-weight:800}
+/* Calling is not raising — it gets a quiet ring and no aggression dot. */
+.seat.called .seat-avatar{border-color:var(--text-mute)}
+.btn-marker{position:absolute;width:18px;height:18px;border-radius:50%;background:#ffffff;color:var(--text);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-light);z-index:5;transform:translate(-50%,-50%);border:1.5px solid var(--surface-border)}
 .mini-cards{position:absolute;left:50%;top:36px;transform:translate(-50%,0);display:flex;gap:2px;z-index:2}
-.mini-cards .mc{width:9px;height:12px;border-radius:2px;background:linear-gradient(145deg,#7a1a26,#4a0e16);border:1px solid rgba(255,255,255,.1)}
+.mini-cards .mc{width:9px;height:12px;border-radius:2px;background:var(--surface-border)}
 .seat.folded .mini-cards{opacity:0}
-.action-tape{text-align:center;font-size:11px;color:var(--text-dim);min-height:14px;margin-top:6px;letter-spacing:.4px;font-weight:600}
-.action-tape strong{color:var(--accent-bright)}
-@keyframes actingPulse{0%,100%{box-shadow:0 0 10px var(--accent-glow),0 2px 5px rgba(0,0,0,.5)}50%{box-shadow:0 0 22px var(--accent-glow),0 2px 5px rgba(0,0,0,.5)}}
+.action-tape{text-align:center;font-size:11px;color:var(--text-dim);min-height:14px;margin-top:6px;letter-spacing:.2px;font-weight:600}
+.action-tape strong{color:var(--accent)}
+@keyframes actingPulse{0%,100%{box-shadow:0 0 0 3px var(--accent-glow)}50%{box-shadow:0 0 0 7px var(--accent-glow)}}
 
 /* ===== GLOSSARY ===== */
-.gloss-section{background:linear-gradient(160deg,var(--surface) 0%,var(--surface-2) 100%);border:1px solid var(--surface-border);border-radius:12px;margin-bottom:10px;overflow:hidden;color:var(--text-on-light);box-shadow:var(--shadow-light)}
+.gloss-section{background:var(--surface);border:1px solid var(--surface-border);border-radius:12px;margin-bottom:10px;overflow:hidden;color:var(--text-on-light);box-shadow:var(--shadow-light)}
 .gloss-header{width:100%;display:flex;align-items:center;gap:12px;padding:16px;text-align:left;background:transparent;color:var(--text-on-light);min-height:64px;font-family:inherit}
 .gloss-header:active{background:rgba(0,0,0,.04)}
 .gloss-header .g-icon{font-size:22px;line-height:1;flex-shrink:0}
@@ -458,44 +460,44 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .eq-calc{padding:8px 0}
 .eq-row{display:flex;align-items:center;gap:8px;margin:8px 0}
 .eq-row .eq-label{flex-shrink:0;width:64px;font-size:12px;font-weight:700;color:var(--text-on-light-dim);text-transform:uppercase;letter-spacing:.4px}
-.eq-input{flex:1;padding:10px 12px;background:rgba(0,0,0,.04);border:1.5px solid var(--surface-border);border-radius:9px;font-family:"SF Mono","Monaco",monospace;font-size:14px;font-weight:700;color:var(--text-on-light);letter-spacing:.5px;text-transform:uppercase}
+.eq-input{flex:1;padding:10px 12px;background:var(--surface-3);border:1.5px solid var(--surface-border);border-radius:9px;font-family:"SF Mono","Monaco",monospace;font-size:14px;font-weight:700;color:var(--text-on-light);letter-spacing:.5px;text-transform:uppercase}
 .eq-input:focus{border-color:var(--accent);background:#fff}
 .eq-input.invalid{border-color:var(--fold)}
 .eq-toggle{display:flex;gap:6px;flex:1}
-.eq-toggle button{flex:1;padding:9px;border-radius:8px;background:rgba(0,0,0,.04);border:1px solid var(--surface-border);font-size:12px;font-weight:700;color:var(--text-on-light-dim)}
-.eq-toggle button.on{background:var(--accent);border-color:var(--accent);color:#1a1409}
-.eq-run{width:100%;height:48px;border-radius:11px;background:linear-gradient(180deg,var(--accent-bright),var(--accent));color:#1a1409;font-weight:800;font-size:14px;letter-spacing:.5px;text-transform:uppercase;margin-top:10px;box-shadow:0 4px 10px rgba(230,192,104,.3)}
+.eq-toggle button{flex:1;padding:9px;border-radius:8px;background:var(--surface-3);border:1px solid var(--surface-border);font-size:12px;font-weight:700;color:var(--text-on-light-dim)}
+.eq-toggle button.on{background:var(--accent);border-color:var(--accent);color:#ffffff}
+.eq-run{width:100%;height:48px;border-radius:11px;background:var(--accent);color:#ffffff;font-weight:700;font-size:14px;letter-spacing:.2px;margin-top:10px}
 .eq-run:active{transform:scale(.98)}
 .eq-run:disabled{opacity:.5}
 .eq-result{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
-.eq-result .er{background:rgba(0,0,0,.05);border-radius:9px;padding:10px;text-align:center;border:1px solid var(--surface-border)}
+.eq-result .er{background:var(--surface-3);border-radius:9px;padding:10px;text-align:center;border:1px solid var(--surface-border)}
 .eq-result .er .ev{font-size:22px;font-weight:800;color:var(--accent2)}
 .eq-result .er .el{font-size:10px;color:var(--text-on-light-mute);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:700}
 .eq-result .er.win .ev{color:var(--raise)}
 .eq-result .er.tie .ev{color:var(--call-dim)}
 .eq-result .er.loss .ev{color:var(--fold)}
 .eq-hint{font-size:11.5px;color:var(--text-on-light-mute);text-align:center;margin-top:8px;line-height:1.4;font-style:italic}
-.eq-bar{height:10px;border-radius:5px;background:rgba(0,0,0,.08);overflow:hidden;margin-top:10px;display:flex}
+.eq-bar{height:10px;border-radius:5px;background:var(--surface-3);overflow:hidden;margin-top:10px;display:flex}
 .eq-bar .b-win{background:var(--raise);transition:width .3s ease}
-.eq-bar .b-tie{background:var(--call);transition:width .3s ease}
+.eq-bar .b-tie{background:var(--call-bright);transition:width .3s ease}
 .eq-bar .b-loss{background:var(--fold);transition:width .3s ease;flex-grow:0}
 
-.solver-note{background:rgba(45,168,102,.1);border:1px solid rgba(45,168,102,.3);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--text-on-light);line-height:1.5;margin-top:10px}
+.solver-note{background:rgba(47,168,79,.08);border:1px solid rgba(47,168,79,.25);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--text-on-light);line-height:1.5;margin-top:10px}
 .solver-note strong{color:var(--accent2)}
 
-.eq-intro{background:rgba(45,168,102,.07);border:1px solid rgba(45,168,102,.22);border-radius:10px;padding:12px 14px;margin-bottom:12px;color:var(--text-on-light)}
+.eq-intro{background:rgba(0,122,255,.05);border:1px solid rgba(0,122,255,.18);border-radius:10px;padding:12px 14px;margin-bottom:12px;color:var(--text-on-light)}
 .eq-intro-title{font-size:13px;font-weight:800;color:var(--accent2);letter-spacing:.3px;margin-bottom:6px;text-transform:uppercase}
 .eq-intro p{margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--text-on-light-dim)}
 .eq-intro p:last-of-type{margin-bottom:8px}
 .eq-intro p strong{color:var(--text-on-light);font-weight:700}
-.eq-example{background:rgba(0,0,0,.05);border-radius:7px;padding:9px 11px;font-size:12px;line-height:1.55;color:var(--text-on-light-dim);margin-top:4px}
+.eq-example{background:var(--surface-3);border-radius:7px;padding:9px 11px;font-size:12px;line-height:1.55;color:var(--text-on-light-dim);margin-top:4px}
 .eq-example strong{color:var(--accent2)}
-.eq-example code{font-family:"SF Mono","Monaco",monospace;background:rgba(230,192,104,.18);color:var(--text-on-light);padding:1px 5px;border-radius:3px;font-weight:700}
-.suit-s,.suit-c{color:#1a2520;font-weight:700}
-.suit-h,.suit-d{color:#c8163a;font-weight:700}
+.eq-example code{font-family:"SF Mono","Monaco",monospace;background:rgba(0,122,255,.12);color:var(--text-on-light);padding:1px 5px;border-radius:3px;font-weight:700}
+.suit-s,.suit-c{color:#1c1c1e;font-weight:700}
+.suit-h,.suit-d{color:#d9263a;font-weight:700}
 
 .eq-presets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.eq-preset{padding:10px 12px;border-radius:10px;background:linear-gradient(160deg,var(--surface-2),var(--surface-3));border:1px solid var(--surface-border);text-align:left;transition:transform .12s ease,box-shadow .15s ease}
+.eq-preset{padding:10px 12px;border-radius:10px;background:var(--surface-3);border:1px solid var(--surface-border);text-align:left;transition:transform .12s ease,box-shadow .15s ease}
 .eq-preset:active{transform:scale(.97)}
 .eq-preset .pl{font-size:12.5px;font-weight:800;color:var(--text-on-light);letter-spacing:.2px}
 .eq-preset .pd{font-size:10.5px;color:var(--text-on-light-mute);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:2px}
@@ -538,7 +540,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
             <div class="mc-icon">🎯</div>
           </div>
           <div class="title">Preflop Ranges</div>
-          <div class="desc">Fast-paced raise / call / fold drilling by position.</div>
+          <div class="desc">Fast-paced drilling: opens, 3-bets, 4-bets and 5-bets by position.</div>
         </div>
         <div class="meta">
           <span id="m1-count">0 hands</span>
@@ -568,7 +570,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
             <div class="mc-icon">📊</div>
           </div>
           <div class="title">Ranges Explorer</div>
-          <div class="desc">Compare opening ranges side-by-side. Switch between 6-max and full ring.</div>
+          <div class="desc">Open, 3-bet, 4-bet and 5-bet ranges side-by-side. Switch between 6-max and full ring.</div>
         </div>
         <div class="meta">
           <span id="ranges-meta">Interactive 13×13 grid</span>
@@ -666,6 +668,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
       <div class="title">Ranges Explorer</div>
       <div class="icon-btn" style="visibility:hidden">·</div>
     </div>
+    <div class="compare-toggle" id="scenarioRow"></div>
     <div class="compare-toggle">
       <button class="ct-btn on" id="mode-single" onclick="setRangeMode('single')">Single</button>
       <button class="ct-btn" id="mode-compare" onclick="setRangeMode('compare')">Compare 2</button>
@@ -726,6 +729,13 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
           </div>
           <div class="pos-stats-grid" id="posStatsGrid"></div>
         </div>
+        <div class="setting-row">
+          <div>
+            <div class="label">Version</div>
+            <div class="desc" id="buildDesc">—</div>
+          </div>
+          <button class="mini-btn" id="updateBtn" onclick="checkForUpdate()">Check</button>
+        </div>
         <button class="danger-btn" onclick="resetStats()">Reset all stats</button>
       </div>
     </div>
@@ -757,7 +767,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
       <div class="overlay-handle"></div>
       <div class="overlay-title">Range — <span id="gridOverlayPos">BTN</span></div>
       <button class="overlay-close" onclick="closeOverlay(null,'gridOverlay')">×</button>
-      <div class="grid-legend">
+      <div class="grid-legend" id="gridOverlayLegend">
         <div class="legend-item"><div class="legend-dot raise"></div>Raise</div>
         <div class="legend-item"><div class="legend-dot call"></div>Call/Defend</div>
         <div class="legend-item"><div class="legend-dot fold"></div>Fold</div>
@@ -809,6 +819,11 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 
 <script>
 'use strict';
+
+/* Bump this to ship an update. It is the service worker's version too (it
+   goes on the registration URL), so a new value makes the browser install a
+   fresh worker, drop the old cache and reload whatever is open. */
+const BUILD = '2026.09.12';
 
 /* ============================================================
    CONSTANTS
@@ -923,34 +938,151 @@ const RANGE_DEF_9MAX = {
       'AQo','AJo','ATo','KQo','KJo','KTo','QJo','QTo','JTo'] }
 };
 
-let RANGE_DEF = RANGE_DEF_6MAX;
-let RANGE_SETS = {};
-function rebuildRangeSets(){
-  RANGE_DEF = currentTableSize() === 'full' ? RANGE_DEF_9MAX : RANGE_DEF_6MAX;
-  RANGE_SETS = {};
-  for(const pos in RANGE_DEF){
-    RANGE_SETS[pos] = { raise: new Set(RANGE_DEF[pos].raise), call: new Set(RANGE_DEF[pos].call) };
+/* ============================================================
+   RANGES — vs Open (3-bet/call/fold), vs 3-bet (4-bet/call/fold),
+   vs 4-bet (5-bet/call/fold). Tiered by position group rather than
+   the exact opener's seat — a deliberate simplification (this is a
+   trainer, not a solver), kept internally consistent with the
+   RFI charts above and with the Glossary's own description of
+   3-bet/4-bet/5-bet ranges.
+============================================================ */
+const VS_OPEN_TIERS = {
+  EARLY_MID: {
+    raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
+    call: ['TT','99','88','77','66','55','AJs','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s','AQo','AJo']
+  },
+  LATE: {
+    raise: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','AQo','AJs','KQs','A5s','A4s','A3s','K9s','Q9s','JTs','T9s','98s'],
+    call: ['99','88','77','66','55','44','ATs','A9s','A8s','A7s','A6s','A2s','KJs','KTs','K8s','QJs','QTs','J9s','T8s','87s','76s','65s','54s','AJo','ATo','KQo','KJo']
   }
-}
-// Seed with 6-max defaults so RANGE_SETS is populated before state loads.
-// rebuildRangeSets() will run again at end-of-script init once state is ready.
-for(const pos in RANGE_DEF_6MAX){
-  RANGE_SETS[pos] = { raise: new Set(RANGE_DEF_6MAX[pos].raise), call: new Set(RANGE_DEF_6MAX[pos].call) };
+};
+
+const VS_3BET_TIERS = {
+  EARLY: {
+    raise: ['AA','KK','QQ','AKs','AKo'],
+    call: ['JJ','TT','99','AQs','AQo','AJs','KQs']
+  },
+  LATE: {
+    raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
+    call: ['TT','99','88','ATs','AJs','KQs','KJs','QJs','AQo','KQo']
+  },
+  BLIND: {
+    raise: ['AA','KK','QQ','AKs','AKo'],
+    call: ['JJ','TT','99','AQs','AJs','KQs','AQo']
+  }
+};
+
+const VS_4BET_UNIVERSAL = {
+  raise: ['AA','KK','AKs','AKo'],
+  call: ['QQ','JJ']
+};
+
+/* Folded to the small blind is a steal spot against one player, not an
+   early-position open: the RANGE_DEF entry for SB is its 3-bet/flat range
+   against an opener, so using that as an opening range had SB opening
+   tighter than UTG. */
+const SB_STEAL_RANGE = {
+  raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
+    'AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
+    'KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s',
+    'QJs','QTs','Q9s','Q8s','Q7s','Q6s','Q5s','Q4s',
+    'JTs','J9s','J8s','J7s','J6s',
+    'T9s','T8s','T7s','T6s',
+    '98s','97s','96s','87s','86s','85s','76s','75s','65s','64s','54s',
+    'AKo','AQo','AJo','ATo','A9o','A8o','A7o','A6o','A5o','A4o','A3o','A2o',
+    'KQo','KJo','KTo','K9o','K8o','K7o',
+    'QJo','QTo','Q9o','Q8o','JTo','J9o','J8o','T9o','T8o','98o'],
+  call: []
+};
+
+// Positions that can legally reach each scenario. BB can never open (folded
+// to BB just ends the hand), and the very first seat to act can never be
+// facing anything before it.
+function canOpenPosition(p){ return p !== 'BB'; }
+function canFaceBeforePosition(p){ return p !== POSITIONS[0]; }
+function applicablePositions(scenario){
+  if(scenario === 'open' || scenario === 'vs3bet') return POSITIONS.filter(canOpenPosition);
+  return POSITIONS.filter(canFaceBeforePosition); // vsOpen, vs4bet
 }
 
-function decisionFor(hand, position){
-  const r = RANGE_SETS[position];
+function vsOpenTier(position){
+  if(position === 'SB') return 'SB';
+  if(position === 'BB') return 'BB';
+  if(['HJ','CO','BTN'].includes(position)) return 'LATE';
+  return 'EARLY_MID';
+}
+function vs3betTier(position){
+  if(position === 'SB') return 'BLIND';
+  if(['HJ','CO','BTN'].includes(position)) return 'LATE';
+  return 'EARLY';
+}
+
+const SCENARIO_META = {
+  open:   { key:'open',   label:'Open',    short:'Open',   raiseLabel:'Raise', tileAbbrev:'R',  hasCall:false, blurb:'First in, nobody has entered the pot — raise or fold.' },
+  vsOpen: { key:'vsOpen', label:'vs Open', short:'3-Bet',  raiseLabel:'3-Bet', tileAbbrev:'3B', hasCall:true,   blurb:'Someone opened before you — 3-bet, call, or fold.' },
+  vs3bet: { key:'vs3bet', label:'vs 3-Bet',short:'4-Bet',  raiseLabel:'4-Bet', tileAbbrev:'4B', hasCall:true,   blurb:'You opened and got 3-bet — 4-bet, call, or fold.' },
+  vs4bet: { key:'vs4bet', label:'vs 4-Bet',short:'5-Bet',  raiseLabel:'5-Bet', tileAbbrev:'5B', hasCall:true,   blurb:'You 3-bet and got 4-bet — jam (5-bet), call, or fold.' }
+};
+const SCENARIO_ORDER = ['open','vsOpen','vs3bet','vs4bet'];
+
+function actionLabel(decision, meta){
+  if(decision === 'raise') return meta.raiseLabel;
+  if(decision === 'call') return 'Call';
+  return 'Fold';
+}
+
+let RANGE_DEF = RANGE_DEF_6MAX;
+let SCENARIO_SETS = {};
+function buildScenarioSets(){
+  const open = {};
+  applicablePositions('open').forEach(pos => {
+    const def = pos === 'SB' ? SB_STEAL_RANGE : RANGE_DEF[pos];
+    open[pos] = { raise: new Set(def.raise), call: new Set() };
+  });
+
+  const vsOpen = {};
+  applicablePositions('vsOpen').forEach(pos => {
+    const tier = vsOpenTier(pos);
+    const def = (tier === 'SB' || tier === 'BB') ? RANGE_DEF[tier] : VS_OPEN_TIERS[tier];
+    vsOpen[pos] = { raise: new Set(def.raise), call: new Set(def.call) };
+  });
+
+  const vs3bet = {};
+  applicablePositions('vs3bet').forEach(pos => {
+    const def = VS_3BET_TIERS[vs3betTier(pos)];
+    vs3bet[pos] = { raise: new Set(def.raise), call: new Set(def.call) };
+  });
+
+  const vs4bet = {};
+  applicablePositions('vs4bet').forEach(pos => {
+    vs4bet[pos] = { raise: new Set(VS_4BET_UNIVERSAL.raise), call: new Set(VS_4BET_UNIVERSAL.call) };
+  });
+
+  SCENARIO_SETS = { open, vsOpen, vs3bet, vs4bet };
+}
+function rebuildRangeSets(){
+  RANGE_DEF = currentTableSize() === 'full' ? RANGE_DEF_9MAX : RANGE_DEF_6MAX;
+  buildScenarioSets();
+}
+// Seed with 6-max defaults so the lookups are populated before state loads.
+// rebuildRangeSets() will run again at end-of-script init once state is ready.
+buildScenarioSets();
+
+function decisionFor(hand, position, scenario){
+  const sets = SCENARIO_SETS[scenario || 'open'];
+  const r = sets && sets[position];
+  if(!r) return 'fold';
   if(r.raise.has(hand)) return 'raise';
   if(r.call.has(hand)) return 'call';
   return 'fold';
 }
 
-function rangeStats(position){
+function rangeStats(position, scenario){
   let raise = 0, call = 0;
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position);
+      const d = decisionFor(h, position, scenario);
       const weight = i === j ? 6 : (i < j ? 4 : 12);
       if(d === 'raise') raise += weight;
       else if(d === 'call') call += weight;
@@ -978,6 +1110,7 @@ function handCategory(hand){
   if(isSuitedAce && lv >= 10) return 'Suited broadway ace';
   if(isSuitedAce) return 'Suited ace';
   if(isBroadway) return suited ? 'Suited broadway' : 'Offsuit broadway';
+  if(hi === 'A') return 'Offsuit ace';
   if(suited && gap === 1) return 'Suited connector';
   if(suited && gap === 2) return 'Suited one-gapper';
   if(suited) return 'Suited gapper';
@@ -1016,10 +1149,6 @@ function dealHand(){
 function dealFlop(){
   const deck = shuffleFY(buildDeck());
   return [deck[0], deck[1], deck[2]];
-}
-
-function pickPosition(){
-  return POSITIONS[cryptoRand(POSITIONS.length)];
 }
 
 /* ============================================================
@@ -1228,9 +1357,17 @@ function pct(part, whole){
   return Math.round((part / whole) * 100);
 }
 
+/* The pot sizes are stored in euros at a 2c big blind. The BB view has to
+   keep a decimal, otherwise the rounded numbers no longer divide into the
+   pot odds the feedback is explaining. */
+const BB_SIZE = 0.02;
+function fmtNum(v){
+  const n = state.currency === 'BB' ? v / BB_SIZE : v;
+  const s = state.currency === 'BB' ? String(Math.round(n * 10) / 10) : n.toFixed(2);
+  return s.replace('.', ',');
+}
 function fmtMoney(v){
-  if(state.currency === 'BB') return (v / 0.02).toFixed(0) + ' BB';
-  return v.toFixed(2).replace('.', ',') + '€';
+  return fmtNum(v) + (state.currency === 'BB' ? ' BB' : '€');
 }
 
 /* ============================================================
@@ -1330,25 +1467,68 @@ function updateHomeStats(){
 /* ============================================================
    MODULE 1 — PREFLOP
 ============================================================ */
+const M1_SCENARIO_WEIGHTS = { open: 4, vsOpen: 3, vs3bet: 2, vs4bet: 1 };
+function pickM1Scenario(){
+  const bag = [];
+  for(const k in M1_SCENARIO_WEIGHTS){ for(let i = 0; i < M1_SCENARIO_WEIGHTS[k]; i++) bag.push(k); }
+  return bag[cryptoRand(bag.length)];
+}
+
+const SEAT_OPEN_WEIGHTS = {'UTG':1,'UTG+1':1,'UTG+2':1,'LJ':1,'MP':2,'HJ':3,'CO':5,'BTN':6,'SB':2,'BB':1};
+function weightedPositionPick(list){
+  const bag = [];
+  list.forEach(p => { const w = SEAT_OPEN_WEIGHTS[p] || 1; for(let k = 0; k < w; k++) bag.push(p); });
+  return bag.length ? bag[cryptoRand(bag.length)] : null;
+}
+
+// Builds the sequence of seat actions that happen before hero's turn, so the
+// felt animation and the training scenario always agree with each other —
+// including for SB, which used to be told it was "facing an open" in its
+// feedback text while the table showed nobody had raised.
+function buildScript(scenario, heroPosition){
+  const heroIdx = POKER_ORDER.indexOf(heroPosition);
+  const before = POKER_ORDER.slice(0, heroIdx);
+  const after = POKER_ORDER.slice(heroIdx + 1);
+
+  if(scenario === 'open'){
+    return { steps: before.map(p => ({pos:p, action:'fold', verb:'folds'})), facing: null };
+  }
+  if(scenario === 'vsOpen'){
+    const opener = weightedPositionPick(before);
+    const steps = before.map(p => p === opener
+      ? {pos:p, action:'raise', verb:'raises'}
+      : {pos:p, action:'fold', verb:'folds'});
+    return { steps, facing: opener };
+  }
+  if(scenario === 'vs3bet'){
+    const pool = after.length ? after : POKER_ORDER.filter(p => p !== heroPosition);
+    const threeBettor = weightedPositionPick(pool);
+    const steps = before.map(p => ({pos:p, action:'fold', verb:'folds'}));
+    steps.push({pos:heroPosition, action:'raise', verb:'raises', silent:true});
+    steps.push({pos:threeBettor, action:'raise', verb:'3-bets'});
+    return { steps, facing: threeBettor };
+  }
+  // vs4bet: an earlier position opened, hero 3-bet (silently, already happened), opener 4-bets.
+  const pool = before.length ? before : POKER_ORDER.filter(p => p !== heroPosition);
+  const opener = weightedPositionPick(pool);
+  const steps = before.map(p => p === opener
+    ? {pos:p, action:'raise', verb:'raises'}
+    : {pos:p, action:'fold', verb:'folds'});
+  steps.push({pos:heroPosition, action:'raise', verb:'raises', silent:true});
+  steps.push({pos:opener, action:'raise', verb:'4-bets'});
+  return { steps, facing: opener };
+}
+
 function newHandM1(){
   if(session.pendingTimeout){ clearTimeout(session.pendingTimeout); session.pendingTimeout = null; }
   const [c1, c2] = dealHand();
   const hand = notation(c1, c2);
-  const position = pickPosition();
-  const correct = decisionFor(hand, position);
-  let opener = null;
-  if(position === 'BB'){
-    const idx = POKER_ORDER.indexOf('BB');
-    const weights = {'UTG':1,'UTG+1':1,'MP':2,'HJ':3,'CO':5,'BTN':6,'SB':2};
-    const bag = [];
-    for(let i = 0; i < idx; i++){
-      const p = POKER_ORDER[i];
-      const w = weights[p] || 1;
-      for(let k = 0; k < w; k++) bag.push(p);
-    }
-    opener = bag[cryptoRand(bag.length)];
-  }
-  session.current = {type:'m1', cards:[c1,c2], hand, position, correct, opener};
+  const scenario = pickM1Scenario();
+  const positions = applicablePositions(scenario);
+  const position = positions[cryptoRand(positions.length)];
+  const correct = decisionFor(hand, position, scenario);
+  const script = buildScript(scenario, position);
+  session.current = {type:'m1', cards:[c1,c2], hand, position, scenario, correct, script};
   session.answered = false;
   renderM1();
   updateM1Live();
@@ -1356,20 +1536,20 @@ function newHandM1(){
 
 function renderM1(){
   const cur = session.current;
+  const meta = SCENARIO_META[cur.scenario];
   const body = document.getElementById('m1Body');
   body.innerHTML = '';
 
   const posTag = el('div', {class:'position-tag', id:'m1PosTag'}, [
     el('span', {class:'dot'}, []),
-    'You are ' + cur.position
+    'You are ' + cur.position + (cur.scenario === 'open' ? '' : ' — ' + meta.label)
   ]);
   body.appendChild(posTag);
 
   const tableWrap = el('div', {class:'poker-table-wrap'}, []);
   const table = el('div', {class:'poker-table', id:'pokerTable'}, [
     el('div', {class:'table-felt', id:'tableFelt'}, [
-      el('div', {class:'table-center'}, [el('div', {class:'pot-label', id:'potLabel'}, ['Blinds posted'])]),
-      el('div', {class:'center-chip', id:'centerChips'}, [])
+      el('div', {class:'table-center'}, [el('div', {class:'pot-label', id:'potLabel'}, ['Pot'])])
     ])
   ]);
   tableWrap.appendChild(table);
@@ -1384,14 +1564,18 @@ function renderM1(){
   ]);
   body.appendChild(handBox);
 
-  const actions = el('div', {class:'actions', id:'m1Actions'}, [
-    el('button', {class:'act fold', onclick: () => answerM1('fold')}, ['Fold']),
-    el('button', {class:'act call', onclick: () => answerM1('call')}, ['Call']),
-    el('button', {class:'act raise', onclick: () => answerM1('raise')}, ['Raise'])
-  ]);
+  const actionButtons = [el('button', {class:'act fold', onclick: () => answerM1('fold')}, ['Fold'])];
+  if(meta.hasCall) actionButtons.push(el('button', {class:'act call', onclick: () => answerM1('call')}, ['Call']));
+  actionButtons.push(el('button', {class:'act raise', onclick: () => answerM1('raise')}, [meta.raiseLabel]));
+
+  const actions = el('div', {
+    class:'actions',
+    id:'m1Actions',
+    style: meta.hasCall ? '' : 'grid-template-columns:1fr 1fr'
+  }, actionButtons);
   body.appendChild(actions);
 
-  setupPokerTable(cur.position, cur.opener);
+  setupPokerTable(cur.position, cur.script);
 }
 
 function seatCoords(slot, total){
@@ -1402,10 +1586,10 @@ function seatCoords(slot, total){
   return {x: cx, y: cy};
 }
 
-function setupPokerTable(heroPosition, opener){
+function setupPokerTable(heroPosition, script){
   const felt = document.getElementById('tableFelt');
   if(!felt) return;
-  felt.querySelectorAll('.seat,.btn-marker,.flying-chip').forEach(e => e.remove());
+  felt.querySelectorAll('.seat,.btn-marker').forEach(e => e.remove());
   const total = POKER_ORDER.length;
   const heroIdx = POKER_ORDER.indexOf(heroPosition);
 
@@ -1422,20 +1606,38 @@ function setupPokerTable(heroPosition, opener){
       el('div', {class:'mini-cards'}, [el('div', {class:'mc'}, []), el('div', {class:'mc'}, [])]),
       el('div', {class:'seat-name'}, [pos])
     ]);
-    if(pos === 'SB') seat.appendChild(el('div', {class:'seat-chip'}, []));
-    if(pos === 'BB') seat.appendChild(el('div', {class:'seat-chip large'}, []));
     felt.appendChild(seat);
 
     if(pos === 'BTN'){
-      const btnX = x + (x < 50 ? 9 : x > 50 ? -9 : 0);
-      const btnY = y + (y < 50 ? 8 : -8);
+      // Always offset the marker towards the middle of the table. Keying the
+      // horizontal nudge off `x < 50` left it at zero for a seat sitting dead
+      // centre, which put the button on top of the hero's own avatar.
+      const btnX = x + (x >= 50 ? -11 : 11);
+      const btnY = y + (y < 50 ? 9 : -9);
       felt.appendChild(el('div', {class:'btn-marker', style:`left:${btnX}%;top:${btnY}%`}, ['D']));
     }
   }
 
+  const potEl = document.getElementById('potLabel');
+  if(potEl) potEl.textContent = 'Pot ' + potBeforeHero(script) + ' BB';
+
   const tape = document.getElementById('actionTape');
   if(tape) tape.innerHTML = 'Blinds posted, cards dealt...';
-  animatePreflopAction(heroPosition, opener);
+  animatePreflopAction(heroPosition, script);
+}
+
+/* Standard no-limit sizings, so the middle of the table shows what is
+   actually at stake when it gets back to you instead of a fixed caption. */
+const RAISE_SIZE_BB = [2.5, 9, 22];
+function potBeforeHero(script){
+  let pot = 1.5; // small blind + big blind
+  let step = 0;
+  script.steps.forEach(s => {
+    if(s.action !== 'raise') return;
+    pot += RAISE_SIZE_BB[Math.min(step, RAISE_SIZE_BB.length - 1)];
+    step++;
+  });
+  return Math.round(pot * 10) / 10;
 }
 
 function clearAnimTimeouts(){
@@ -1445,48 +1647,46 @@ function clearAnimTimeouts(){
   session.animTimeouts = [];
 }
 
-function fastForwardAnimation(heroPosition, opener){
-  const heroIdx = POKER_ORDER.indexOf(heroPosition);
-  for(let i = 0; i < heroIdx; i++){
-    const pos = POKER_ORDER[i];
-    const seat = document.querySelector(`.seat[data-pos="${pos}"]`);
-    if(!seat) continue;
-    if(pos === opener) seat.classList.add('raised');
-    else seat.classList.add('folded');
-  }
+function fastForwardAnimation(heroPosition, script){
+  script.steps.forEach(s => {
+    const seat = document.querySelector(`.seat[data-pos="${s.pos}"]`);
+    if(!seat) return;
+    seat.classList.add(s.action === 'raise' ? 'raised' : 'folded');
+  });
   const hero = document.querySelector('.seat.hero');
   if(hero) hero.classList.add('acting');
 }
 
-function animatePreflopAction(heroPosition, opener){
+function animatePreflopAction(heroPosition, script){
   clearAnimTimeouts();
-  const heroIdx = POKER_ORDER.indexOf(heroPosition);
   const tape = document.getElementById('actionTape');
   let delay = 180;
   const step = 90;
+  let lastVerb = null;
 
-  for(let i = 0; i < heroIdx; i++){
-    const pos = POKER_ORDER[i];
-    const isOpener = pos === opener;
+  script.steps.forEach(s => {
+    if(s.silent){
+      // Hero's own earlier action in this line (e.g. the open before a
+      // vs-3-bet spot) — reflect it on the felt instantly, no tape line.
+      const seat = document.querySelector(`.seat[data-pos="${s.pos}"]`);
+      if(seat) seat.classList.add(s.action === 'raise' ? 'raised' : 'folded');
+      return;
+    }
+    lastVerb = s.verb;
     session.animTimeouts.push(setTimeout(() => {
-      const seat = document.querySelector(`.seat[data-pos="${pos}"]`);
+      const seat = document.querySelector(`.seat[data-pos="${s.pos}"]`);
       if(!seat) return;
-      if(isOpener){
-        seat.classList.add('raised');
-        if(tape) tape.innerHTML = `<strong>${pos}</strong> raises`;
-      }else{
-        seat.classList.add('folded');
-        if(tape) tape.innerHTML = `<strong>${pos}</strong> folds`;
-      }
+      seat.classList.add(s.action === 'raise' ? 'raised' : 'folded');
+      if(tape) tape.innerHTML = `<strong>${s.pos}</strong> ${s.verb}`;
     }, delay));
     delay += step;
-  }
+  });
 
   session.animTimeouts.push(setTimeout(() => {
     const hero = document.querySelector('.seat.hero');
     if(hero) hero.classList.add('acting');
     if(tape){
-      if(opener) tape.innerHTML = `<strong>${opener}</strong> raised — your action`;
+      if(script.facing) tape.innerHTML = `<strong>${script.facing}</strong> ${lastVerb || 'raises'} — your action`;
       else if(heroPosition === 'BB' || heroPosition === 'SB') tape.innerHTML = `Folded to you — your action`;
       else tape.innerHTML = `Your turn to act`;
     }
@@ -1502,7 +1702,7 @@ function animateHeroAction(decision){
     hero.classList.add('folded');
     if(tape) tape.innerHTML = `<strong>You</strong> fold`;
   }else if(decision === 'call'){
-    hero.classList.add('raised');
+    hero.classList.add('called');
     if(tape) tape.innerHTML = `<strong>You</strong> call`;
   }else{
     hero.classList.add('raised');
@@ -1515,10 +1715,10 @@ function answerM1(decision){
   session.answered = true;
   const cur = session.current;
   const correct = decision === cur.correct;
-  recordAnswer('m1', correct, {hand: cur.hand, position: cur.position, given: decision, correctDec: cur.correct});
+  recordAnswer('m1', correct, {hand: cur.hand, position: cur.position, given: decision, correctDec: cur.correct, scenario: cur.scenario});
 
   clearAnimTimeouts();
-  fastForwardAnimation(cur.position, cur.opener);
+  fastForwardAnimation(cur.position, cur.script);
 
   const body = document.getElementById('m1Body');
   const actionsEl = document.getElementById('m1Actions');
@@ -1529,6 +1729,13 @@ function answerM1(decision){
   // Build the answer panel: feedback + continue button, placed exactly where the action buttons were.
   const panel = el('div', {class:'answer-panel ' + (correct ? 'correct' : 'wrong')}, []);
   panel.appendChild(buildCompactFeedback(decision, correct, cur));
+
+  // The milestone card goes inside the panel, above the button — appending it
+  // to the screen afterwards pushed it below the fold every tenth hand.
+  if(session.sinceMilestone >= 10){
+    session.sinceMilestone = 0;
+    showInlineMilestone(panel, 'm1');
+  }
 
   if(correct && state.autoAdvance){
     panel.appendChild(el('div', {class:'auto-bar'}, []));
@@ -1547,48 +1754,53 @@ function answerM1(decision){
   if(navigator.vibrate) navigator.vibrate(correct ? 15 : [30,30,30]);
 
   updateM1Live();
-  if(session.sinceMilestone >= 10){
-    session.sinceMilestone = 0;
-    showInlineMilestone(body, 'm1');
-  }
 }
 
 function buildCompactFeedback(decision, correct, cur){
   const cat = handCategory(cur.hand);
+  const meta = SCENARIO_META[cur.scenario];
   const fb = el('div', {class:'compact-fb ' + (correct ? 'correct' : 'wrong')}, []);
   const head = el('div', {class:'head'}, [
-    correct ? '✓ Correct' : `✗ Correct: ${cur.correct.toUpperCase()}`,
+    correct ? '✓ Correct' : `✗ Correct: ${actionLabel(cur.correct, meta).toUpperCase()}`,
     el('span', {class:'badge'}, [cur.hand])
   ]);
   fb.appendChild(head);
 
   const why = el('div', {class:'why'}, []);
-  if(correct){
-    why.innerHTML = `<strong>${cat}</strong> · ${cur.position} ${cur.correct === 'raise' ? 'opens' : cur.correct === 'call' ? 'flats/defends' : 'folds'} this.`;
-  }else{
-    why.innerHTML = `<strong>${cat}</strong> · ${shortReason(cur.hand, cur.position, cur.correct)}`;
-  }
+  why.innerHTML = `<strong>${cat}</strong> · ${scenarioReason(cur)}`;
   fb.appendChild(why);
   return fb;
 }
 
-function shortReason(hand, position, correct){
-  const cat = handCategory(hand);
-  if(correct === 'raise'){
-    if(['UTG','UTG+1','MP','HJ'].includes(position)) return `Strong enough for ${position} to open.`;
-    return `${position} opens wide thanks to position; this hand makes the cut.`;
+const EARLY_POSITIONS = ['UTG','UTG+1','UTG+2','LJ','MP'];
+function scenarioReason(cur){
+  const {position, scenario, correct} = cur;
+  // Name the seat that actually put the money in — saying "facing an open
+  // from BTN" while BTN is the hero read as if the hero had opened.
+  const villain = (cur.script && cur.script.facing) || 'the raiser';
+  if(scenario === 'open'){
+    if(correct === 'raise'){
+      if(EARLY_POSITIONS.includes(position)) return `Strong enough for ${position} to open.`;
+      return `${position} opens wide thanks to position; this hand makes the cut.`;
+    }
+    return EARLY_POSITIONS.includes(position)
+      ? 'Too marginal for early position — too many players left.'
+      : 'Not enough equity or playability from this seat.';
   }
-  if(correct === 'call'){
-    if(position === 'SB') return 'SB completes/flats with hands not strong enough to 3bet.';
-    if(position === 'BB') return 'BB gets a discount to defend — call is profitable.';
-    return 'Has playability but not premium enough to raise here.';
+  if(scenario === 'vsOpen'){
+    if(correct === 'raise') return `Strong enough to 3-bet ${villain}'s open for value or as a blocker.`;
+    if(correct === 'call') return `Playable enough to flat ${villain}'s open, not strong enough to 3-bet.`;
+    return `Not worth defending from ${position} against ${villain}'s open.`;
   }
-  if(['UTG','UTG+1','MP'].includes(position)) return 'Too marginal for early position — too many players left.';
-  return 'Not enough equity or playability from this seat.';
-}
-
-function newHandM1Quick(){
-  newHandM1();
+  if(scenario === 'vs3bet'){
+    if(correct === 'raise') return `Strong enough to 4-bet ${villain}'s 3-bet for value or as a blocker.`;
+    if(correct === 'call') return `Good enough to call ${villain}'s 3-bet and see a flop, not to 4-bet.`;
+    return `Give up — not enough equity to continue against ${villain}'s 3-bet.`;
+  }
+  // vs4bet
+  if(correct === 'raise') return `Top of your range — get it in against ${villain}'s 4-bet.`;
+  if(correct === 'call') return `Strong enough to call ${villain}'s 4-bet, not to stack off.`;
+  return `Your 3-bet has to give up — not enough equity for a 5-bet pot.`;
 }
 
 function updateM1Live(){
@@ -1603,22 +1815,36 @@ function updateM1Live(){
    GRID OVERLAY
 ============================================================ */
 let overlayCurrentPos = 'BTN';
+let overlayCurrentScenario = 'open';
 function openGridOverlay(){
-  const pos = session.current?.position || overlayCurrentPos;
+  const cur = session.current;
+  const scenario = (cur && cur.scenario) || 'open';
+  const pos = (cur && cur.position) || overlayCurrentPos;
   overlayCurrentPos = pos;
-  document.getElementById('gridOverlayPos').textContent = pos;
+  overlayCurrentScenario = scenario;
+  const meta = SCENARIO_META[scenario];
+  document.getElementById('gridOverlayPos').textContent = pos + (scenario === 'open' ? '' : ' · ' + meta.label);
+  const legend = document.getElementById('gridOverlayLegend');
+  if(legend){
+    legend.innerHTML = '';
+    legend.appendChild(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot raise'}, []), meta.raiseLabel]));
+    if(meta.hasCall) legend.appendChild(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot call'}, []), 'Call']));
+    legend.appendChild(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot fold'}, []), 'Fold']));
+  }
   const container = document.getElementById('overlayGridContainer');
   container.innerHTML = '';
-  container.appendChild(renderGridFor(pos, null, handleGridTap));
+  container.appendChild(renderGridFor(pos, null, handleGridTap, null, scenario));
   document.getElementById('overlayHandInfo').textContent = 'Tap any cell to see its action.';
   document.getElementById('gridOverlay').classList.add('show');
 }
 
 function handleGridTap(hand){
   const pos = overlayCurrentPos;
-  const d = decisionFor(hand, pos);
+  const scenario = overlayCurrentScenario;
+  const meta = SCENARIO_META[scenario];
+  const d = decisionFor(hand, pos, scenario);
   const info = document.getElementById('overlayHandInfo');
-  const label = d.toUpperCase();
+  const label = actionLabel(d, meta).toUpperCase();
   info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${pos}</strong> → <strong style="color:var(--${d})">${label}</strong> <span class="cat-label">${handCategory(hand)}</span>`;
 }
 
@@ -1631,16 +1857,16 @@ function closeOverlay(e, id){
   document.getElementById(id).classList.remove('show');
 }
 
-function renderGridFor(position, highlightHand, onCellTap, diffPosition){
+function renderGridFor(position, highlightHand, onCellTap, diffPosition, scenario){
   const grid = el('div', {class:'range-grid'}, []);
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position);
+      const d = decisionFor(h, position, scenario);
       const cell = el('div', {class: 'range-cell ' + d}, [h]);
       if(h === highlightHand) cell.classList.add('highlight');
       if(diffPosition){
-        const d2 = decisionFor(h, diffPosition);
+        const d2 = decisionFor(h, diffPosition, scenario);
         if(d2 !== d) cell.classList.add('diff');
       }
       if(onCellTap) cell.onclick = () => onCellTap(h);
@@ -1727,8 +1953,8 @@ function renderM2(){
     body.appendChild(drawBox);
 
     const actions = el('div', {class:'actions', style:'grid-template-columns:1fr 1fr', id:'m2Actions'}, [
-      el('button', {class:'act fold', onclick: () => answerM2B('fold')}, ['Fold']),
-      el('button', {class:'act call', onclick: () => answerM2B('call')}, ['Call'])
+      el('button', {class:'act fold', 'data-val':'fold', onclick: () => answerM2B('fold')}, ['Fold']),
+      el('button', {class:'act call', 'data-val':'call', onclick: () => answerM2B('call')}, ['Call'])
     ]);
     body.appendChild(actions);
   }else{
@@ -1769,7 +1995,16 @@ function answerM2B(decision){
   const correct = decision === cur.correctDec;
   recordAnswer('m2B', correct, {pot: cur.pot, bet: cur.bet, street: cur.street, given: decision, correctDec: cur.correctDec, draw: cur.draw.name, outs: cur.draw.outs, equity: cur.equity, potOddsPct: cur.correctPct});
   const actionsEl = document.getElementById('m2Actions');
-  if(actionsEl) Array.from(actionsEl.querySelectorAll('button')).forEach(b => b.disabled = true);
+  if(actionsEl){
+    // Mark the buttons the way sub-mode A does, so the right answer is
+    // visible on the control you actually pressed.
+    Array.from(actionsEl.querySelectorAll('button')).forEach(b => {
+      b.disabled = true;
+      const val = b.getAttribute('data-val');
+      if(val === cur.correctDec) b.classList.add('is-correct');
+      else if(val === decision) b.classList.add('is-wrong');
+    });
+  }
   const scen = document.getElementById('m2Scenario');
   if(scen) scen.classList.add(correct ? 'flash-correct' : 'flash-wrong');
   showM2Feedback(correct, decision);
@@ -1803,24 +2038,27 @@ function showM2Feedback(correct, given){
   const totalPot = cur.pot + cur.bet + cur.bet;
   breakdown.innerHTML = `
     Pot before bet: <strong>${fmtMoney(cur.pot)}</strong> · Bet: <strong>${fmtMoney(cur.bet)}</strong> · Your call: <strong>${fmtMoney(cur.bet)}</strong>
-    <span class="math">${cur.bet.toFixed(2)} ÷ ${totalPot.toFixed(2)} = ${cur.correctPct.toFixed(1)}%</span>
+    <span class="math">${fmtNum(cur.bet)} ÷ ${fmtNum(totalPot)} = ${cur.correctPct.toFixed(1)}%</span>
   `;
   body.appendChild(breakdown);
 
   if(cur.subMode === 'B'){
+    // Colour the equity, not the requirement: a green "pot odds need" box on a
+    // hand you are supposed to fold reads as though the number were good news.
     const cmp = el('div', {class:'comparison'}, []);
-    cmp.appendChild(el('div', {class:'comp-box' + (cur.correctDec === 'fold' ? ' winner' : '')}, [
+    cmp.appendChild(el('div', {class:'comp-box'}, [
       el('div', {class:'l'}, ['Pot odds need']),
       el('div', {class:'v'}, [cur.correctPct.toFixed(1) + '%'])
     ]));
-    cmp.appendChild(el('div', {class:'comp-box' + (cur.correctDec === 'call' ? ' winner' : '')}, [
+    cmp.appendChild(el('div', {class:'comp-box ' + (cur.correctDec === 'call' ? 'winner' : 'loser')}, [
       el('div', {class:'l'}, ['Your equity']),
       el('div', {class:'v'}, [cur.equity + '%'])
     ]));
     body.appendChild(cmp);
     const mult = cur.street === 'Flop' ? 4 : 2;
-    body.appendChild(el('div', {class:'breakdown'}, [], )).innerHTML =
-      `<strong>Rule of ${mult}:</strong> ${cur.draw.outs} outs × ${mult} = <strong>${cur.equity}%</strong> equity by river.`;
+    const ruleBox = el('div', {class:'breakdown'}, []);
+    ruleBox.innerHTML = `<strong>Rule of ${mult}:</strong> ${cur.draw.outs} outs × ${mult} = <strong>${cur.equity}%</strong> equity by river.`;
+    body.appendChild(ruleBox);
   }
 
   if(navigator.vibrate) navigator.vibrate(correct ? 15 : [30,30,30]);
@@ -1963,7 +2201,7 @@ function showSessionSummary(which){
   renderHistList();
 
   const actions = el('div', {style:'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px'}, [
-    el('button', {class:'continue-btn', style:'background:rgba(255,255,255,.06);color:var(--text)', onclick: () => {
+    el('button', {class:'continue-btn', style:'background:rgba(60,60,67,.08);color:var(--text)', onclick: () => {
       if(which === 'm1') startModule1(); else startModule2();
     }}, ['New session']),
     el('button', {class:'continue-btn', onclick: () => nav('home')}, ['Home'])
@@ -1976,10 +2214,13 @@ function renderHistItem(h, which){
   item.appendChild(el('div', {class: 'mark ' + (h.correct ? 'c' : 'w')}, [h.correct ? '✓' : '✗']));
   const info = el('div', {class:'info'}, []);
   if(which === 'm1'){
-    info.appendChild(el('div', {class:'top'}, [h.hand + ' · ' + (h.given || '').toUpperCase() + (h.correct ? '' : ' → ' + (h.correctDec || '').toUpperCase())]));
+    const meta = SCENARIO_META[h.scenario] || SCENARIO_META.open;
+    const givenLabel = h.given ? actionLabel(h.given, meta).toUpperCase() : '';
+    const correctLabel = h.correctDec ? actionLabel(h.correctDec, meta).toUpperCase() : '';
+    info.appendChild(el('div', {class:'top'}, [h.hand + ' · ' + givenLabel + (h.correct ? '' : ' → ' + correctLabel)]));
     info.appendChild(el('div', {class:'bot'}, [handCategory(h.hand)]));
     item.appendChild(info);
-    item.appendChild(el('div', {class:'pos-mini'}, [h.position]));
+    item.appendChild(el('div', {class:'pos-mini'}, [h.position + ' · ' + meta.short]));
   }else{
     if(h.sub === 'A'){
       info.appendChild(el('div', {class:'top'}, [`Pot ${fmtMoney(h.pot)} · Bet ${fmtMoney(h.bet)}`]));
@@ -1998,13 +2239,40 @@ function renderHistItem(h, which){
    RANGES EXPLORER
 ============================================================ */
 let rangeMode = 'single';
+let rangeScenario = 'open';
 let rangeSel1 = 'BTN';
 let rangeSel2 = 'UTG';
 
 function openRangesScreen(){
   rangeMode = 'single';
+  rangeScenario = 'open';
+  const applicable = applicablePositions(rangeScenario);
+  if(!applicable.includes(rangeSel1)) rangeSel1 = applicable[0];
+  if(!applicable.includes(rangeSel2)) rangeSel2 = applicable[applicable.length - 1];
+  renderScenarioRow();
   setRangeMode('single');
   nav('ranges');
+}
+
+function renderScenarioRow(){
+  const row = document.getElementById('scenarioRow');
+  if(!row) return;
+  row.innerHTML = '';
+  SCENARIO_ORDER.forEach(key => {
+    row.appendChild(el('button', {
+      class: 'ct-btn' + (key === rangeScenario ? ' on' : ''),
+      onclick: () => setRangeScenario(key)
+    }, [SCENARIO_META[key].label]));
+  });
+}
+
+function setRangeScenario(scenario){
+  rangeScenario = scenario;
+  const applicable = applicablePositions(scenario);
+  if(!applicable.includes(rangeSel1)) rangeSel1 = applicable[0];
+  if(!applicable.includes(rangeSel2)) rangeSel2 = applicable[applicable.length - 1];
+  renderScenarioRow();
+  renderRangesScreen();
 }
 
 function setRangeMode(mode){
@@ -2019,10 +2287,14 @@ function renderRangesScreen(){
   const body = document.getElementById('rangesBody');
   controls.innerHTML = '';
   body.innerHTML = '';
+  const meta = SCENARIO_META[rangeScenario];
+  const positions = applicablePositions(rangeScenario);
+
+  controls.appendChild(el('div', {style:'text-align:center;font-size:11.5px;color:var(--text-mute);padding:0 16px 4px;line-height:1.4'}, [meta.blurb]));
 
   if(rangeMode === 'single'){
     const tabs = el('div', {class:'pos-tab-row'}, []);
-    POSITIONS.forEach(p => {
+    positions.forEach(p => {
       tabs.appendChild(el('button', {
         class: 'pos-tab' + (p === rangeSel1 ? ' active' : ''),
         onclick: () => { rangeSel1 = p; renderRangesScreen(); }
@@ -2030,61 +2302,58 @@ function renderRangesScreen(){
     });
     controls.appendChild(tabs);
 
-    const stats = rangeStats(rangeSel1);
-    const statsRow = el('div', {class:'range-stats'}, [
-      el('div', {class:'range-stat raise'}, [el('div', {class:'v'}, [stats.raise + '%']), el('div', {class:'l'}, ['Raise'])]),
-      el('div', {class:'range-stat call'}, [el('div', {class:'v'}, [stats.call + '%']), el('div', {class:'l'}, ['Call'])]),
-      el('div', {class:'range-stat fold'}, [el('div', {class:'v'}, [stats.fold + '%']), el('div', {class:'l'}, ['Fold'])])
-    ]);
-    body.appendChild(statsRow);
+    const stats = rangeStats(rangeSel1, rangeScenario);
+    const statTiles = [el('div', {class:'range-stat raise'}, [el('div', {class:'v'}, [stats.raise + '%']), el('div', {class:'l'}, [meta.raiseLabel])])];
+    if(meta.hasCall) statTiles.push(el('div', {class:'range-stat call'}, [el('div', {class:'v'}, [stats.call + '%']), el('div', {class:'l'}, ['Call'])]));
+    statTiles.push(el('div', {class:'range-stat fold'}, [el('div', {class:'v'}, [stats.fold + '%']), el('div', {class:'l'}, ['Fold'])]));
+    body.appendChild(el('div', {class:'range-stats'}, statTiles));
 
-    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap));
-    body.appendChild(el('div', {class:'grid-legend'}, [
-      el('div', {class:'legend-item'}, [el('div', {class:'legend-dot raise'}, []), 'Raise']),
-      el('div', {class:'legend-item'}, [el('div', {class:'legend-dot call'}, []), 'Call']),
-      el('div', {class:'legend-item'}, [el('div', {class:'legend-dot fold'}, []), 'Fold'])
-    ]));
+    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, null, rangeScenario));
+    const legendItems = [el('div', {class:'legend-item'}, [el('div', {class:'legend-dot raise'}, []), meta.raiseLabel])];
+    if(meta.hasCall) legendItems.push(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot call'}, []), 'Call']));
+    legendItems.push(el('div', {class:'legend-item'}, [el('div', {class:'legend-dot fold'}, []), 'Fold']));
+    body.appendChild(el('div', {class:'grid-legend'}, legendItems));
     body.appendChild(el('div', {id:'rangesHandInfo', style:'text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-top:8px'}, ['Tap any cell for details.']));
   }
   else if(rangeMode === 'compare'){
     const selRow = el('div', {class:'compare-row'}, []);
     const sel1 = el('div', {class:'sel'}, [
       el('div', {class:'l'}, ['Position A']),
-      buildPosSelect(rangeSel1, v => { rangeSel1 = v; renderRangesScreen(); })
+      buildPosSelect(rangeSel1, v => { rangeSel1 = v; renderRangesScreen(); }, positions)
     ]);
     const sel2 = el('div', {class:'sel'}, [
       el('div', {class:'l'}, ['Position B (diff)']),
-      buildPosSelect(rangeSel2, v => { rangeSel2 = v; renderRangesScreen(); })
+      buildPosSelect(rangeSel2, v => { rangeSel2 = v; renderRangesScreen(); }, positions)
     ]);
     selRow.appendChild(sel1); selRow.appendChild(sel2);
     controls.appendChild(selRow);
 
-    const stats1 = rangeStats(rangeSel1);
-    const stats2 = rangeStats(rangeSel2);
+    const stats1 = rangeStats(rangeSel1, rangeScenario);
+    const stats2 = rangeStats(rangeSel2, rangeScenario);
 
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-top:2px'}, [
-      `${rangeSel1} (raise ${stats1.raise}%) — cells with white border differ from ${rangeSel2}`
+      `${rangeSel1} (${meta.raiseLabel.toLowerCase()} ${stats1.raise}%) — outlined cells differ from ${rangeSel2}`
     ]));
-    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, rangeSel2));
+    body.appendChild(renderGridFor(rangeSel1, null, handleRangesTap, rangeSel2, rangeScenario));
 
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-top:14px'}, [
-      `${rangeSel2} (raise ${stats2.raise}%)`
+      `${rangeSel2} (${meta.raiseLabel.toLowerCase()} ${stats2.raise}%)`
     ]));
-    body.appendChild(renderGridFor(rangeSel2, null, handleRangesTap, rangeSel1));
+    body.appendChild(renderGridFor(rangeSel2, null, handleRangesTap, rangeSel1, rangeScenario));
 
     body.appendChild(el('div', {id:'rangesHandInfo', style:'text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-top:8px'}, ['Tap any cell to compare.']));
   }
   else if(rangeMode === 'all'){
     body.appendChild(el('div', {style:'font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.6px;text-align:center'}, ['All positions at a glance — tap to expand']));
     const grid = el('div', {class:'mini-grids'}, []);
-    POSITIONS.forEach(p => {
-      const stats = rangeStats(p);
+    positions.forEach(p => {
+      const stats = rangeStats(p, rangeScenario);
       const tile = el('button', {class:'mini-grid-tile' + (p === rangeSel1 ? ' active-tile' : ''), onclick: () => { rangeSel1 = p; setRangeMode('single'); }}, [
         el('div', {class:'tile-head'}, [
           el('div', {class:'tile-pos'}, [p]),
-          el('div', {class:'tile-pct'}, ['R ' + stats.raise + '%'])
+          el('div', {class:'tile-pct'}, [meta.tileAbbrev + ' ' + stats.raise + '%'])
         ]),
-        renderMiniGrid(p)
+        renderMiniGrid(p, rangeScenario)
       ]);
       grid.appendChild(tile);
     });
@@ -2092,9 +2361,9 @@ function renderRangesScreen(){
   }
 }
 
-function buildPosSelect(current, onChange){
+function buildPosSelect(current, onChange, positions){
   const sel = el('select', {onchange: e => onChange(e.target.value)}, []);
-  POSITIONS.forEach(p => {
+  (positions || POSITIONS).forEach(p => {
     const opt = el('option', {value: p}, [p]);
     if(p === current) opt.setAttribute('selected', 'selected');
     sel.appendChild(opt);
@@ -2102,12 +2371,12 @@ function buildPosSelect(current, onChange){
   return sel;
 }
 
-function renderMiniGrid(position){
+function renderMiniGrid(position, scenario){
   const grid = el('div', {class:'mini-range-grid'}, []);
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position);
+      const d = decisionFor(h, position, scenario);
       grid.appendChild(el('div', {class: 'mini-cell ' + d}, []));
     }
   }
@@ -2117,13 +2386,14 @@ function renderMiniGrid(position){
 function handleRangesTap(hand){
   const info = document.getElementById('rangesHandInfo');
   if(!info) return;
+  const meta = SCENARIO_META[rangeScenario];
   if(rangeMode === 'compare'){
-    const d1 = decisionFor(hand, rangeSel1);
-    const d2 = decisionFor(hand, rangeSel2);
-    info.innerHTML = `<span class="hand-label">${hand}</span> · <strong>${rangeSel1}</strong> → <span style="color:var(--${d1})">${d1.toUpperCase()}</span> · <strong>${rangeSel2}</strong> → <span style="color:var(--${d2})">${d2.toUpperCase()}</span>`;
+    const d1 = decisionFor(hand, rangeSel1, rangeScenario);
+    const d2 = decisionFor(hand, rangeSel2, rangeScenario);
+    info.innerHTML = `<span class="hand-label">${hand}</span> · <strong>${rangeSel1}</strong> → <span style="color:var(--${d1})">${actionLabel(d1, meta).toUpperCase()}</span> · <strong>${rangeSel2}</strong> → <span style="color:var(--${d2})">${actionLabel(d2, meta).toUpperCase()}</span>`;
   }else{
-    const d = decisionFor(hand, rangeSel1);
-    info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${rangeSel1}</strong> → <strong style="color:var(--${d})">${d.toUpperCase()}</strong> · ${handCategory(hand)}`;
+    const d = decisionFor(hand, rangeSel1, rangeScenario);
+    info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${rangeSel1}</strong> → <strong style="color:var(--${d})">${actionLabel(d, meta).toUpperCase()}</strong> · ${handCategory(hand)}`;
   }
 }
 
@@ -2223,17 +2493,17 @@ function renderLesson(){
 
   body.appendChild(card);
 
-  const nav = el('div', {class:'lesson-nav'}, []);
+  const navRow = el('div', {class:'lesson-nav'}, []);
   const prevBtn = el('button', {class:'nav-btn', onclick: prevLesson}, ['← Prev']);
   if(currentLesson === 0) prevBtn.disabled = true;
-  nav.appendChild(prevBtn);
+  navRow.appendChild(prevBtn);
 
   if(currentLesson < POSTFLOP_LESSONS.length - 1){
-    nav.appendChild(el('button', {class:'nav-btn primary', onclick: nextLesson}, ['Next →']));
+    navRow.appendChild(el('button', {class:'nav-btn primary', onclick: nextLesson}, ['Next →']));
   }else{
-    nav.appendChild(el('button', {class:'nav-btn primary', onclick: finishPostflop}, ['Finish ✓']));
+    navRow.appendChild(el('button', {class:'nav-btn primary', onclick: finishPostflop}, ['Finish ✓']));
   }
-  body.appendChild(nav);
+  body.appendChild(navRow);
 
   if(!state.postflop.lessonsViewed.includes(currentLesson)){
     state.postflop.lessonsViewed.push(currentLesson);
@@ -2324,6 +2594,9 @@ function renderSettings(){
       : '6 seats — typical online cash format';
   }
 
+  const buildDesc = document.getElementById('buildDesc');
+  if(buildDesc) buildDesc.textContent = BUILD;
+
   const grid = document.getElementById('posStatsGrid');
   grid.innerHTML = '';
   POSITIONS.forEach(pos => {
@@ -2358,13 +2631,21 @@ function setTableSize(size){
   rebuildRangeSets();
   saveState();
   renderSettings();
-  rangeSel1 = POSITIONS[0];
-  rangeSel2 = POSITIONS[POSITIONS.length - 1];
+  const applicable = applicablePositions(typeof rangeScenario === 'string' ? rangeScenario : 'open');
+  rangeSel1 = applicable[0];
+  rangeSel2 = applicable[applicable.length - 1];
 }
 
 function resetStats(){
   if(!confirm('Reset all stats? This cannot be undone.')) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  // The reset also reverts tableSize, so the seat list and the range
+  // lookups have to be rebuilt or they stay on the old table size.
+  refreshTableSize();
+  rebuildRangeSets();
+  const applicable = applicablePositions(rangeScenario);
+  rangeSel1 = applicable[0];
+  rangeSel2 = applicable[applicable.length - 1];
   saveState();
   renderSettings();
   updateHomeStats();
@@ -2538,11 +2819,16 @@ function renderGlossary(){
   GLOSSARY.forEach((section, idx) => {
     const isOpen = idx === glossaryOpenSection;
     const sec = el('div', {class:'gloss-section' + (isOpen ? ' open' : '')}, []);
+    // Counted from the data — the hand-written captions had drifted out of
+    // sync with the lists ("24 concepts" over 28 entries).
+    const metaText = (section.isRanking || section.isProb)
+      ? section.meta
+      : section.items.length + ' terms';
     const header = el('button', {class:'gloss-header', onclick: () => toggleGlossSection(idx)}, [
       el('span', {class:'g-icon'}, [section.icon]),
       el('div', {class:'g-body'}, [
         el('div', {class:'g-title'}, [section.section]),
-        el('div', {class:'g-meta'}, [section.meta])
+        el('div', {class:'g-meta'}, [metaText])
       ]),
       el('span', {class:'g-chev'}, ['›'])
     ]);
@@ -2857,7 +3143,7 @@ function runEquity(){
   }
 
   if(err){
-    resultBox.appendChild(el('div', {class:'solver-note', style:'background:rgba(232,92,92,.12);border-color:rgba(232,92,92,.4)'}, [err]));
+    resultBox.appendChild(el('div', {class:'solver-note', style:'background:rgba(255,59,48,.1);border-color:rgba(255,59,48,.35)'}, [err]));
     return;
   }
 
@@ -2905,103 +3191,62 @@ function runEquity(){
 /* ============================================================
    PWA: MANIFEST + ICONS + SERVICE WORKER
 ============================================================ */
-function generateIcon(size){
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const ctx = c.getContext('2d');
-  const grad = ctx.createLinearGradient(0, 0, size, size);
-  grad.addColorStop(0, '#143a2c');
-  grad.addColorStop(1, '#0a1f1a');
-  ctx.fillStyle = grad;
-  const r = size * 0.18;
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.arcTo(size, 0, size, size, r);
-  ctx.arcTo(size, size, 0, size, r);
-  ctx.arcTo(0, size, 0, 0, r);
-  ctx.arcTo(0, 0, size, 0, r);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = '#e6c068';
-  ctx.font = 'bold ' + Math.round(size * 0.32) + 'px -apple-system,Helvetica,Arial,sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('♠', size / 2, size * 0.42);
-  ctx.fillStyle = '#3ddc84';
-  ctx.font = 'bold ' + Math.round(size * 0.22) + 'px -apple-system,Helvetica,Arial,sans-serif';
-  ctx.fillText('PT', size / 2, size * 0.74);
-  return c.toDataURL('image/png');
-}
-
-function installManifest(){
-  const icon192 = generateIcon(192);
-  const icon512 = generateIcon(512);
-  const manifest = {
-    name: 'Poker Trainer',
-    short_name: 'PokerTrainer',
-    description: 'Train preflop ranges, pot odds, and postflop basics — offline.',
-    start_url: './',
-    scope: './',
-    display: 'standalone',
-    orientation: 'portrait',
-    background_color: '#0a1f1a',
-    theme_color: '#0e2e22',
-    icons: [
-      {src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable'},
-      {src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable'}
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-  document.getElementById('manifestLink').href = URL.createObjectURL(blob);
-  document.getElementById('appleIconLink').href = icon192;
-  document.getElementById('faviconLink').href = icon192;
-}
+let swRegistration = null;
 
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol === 'file:') return;
-  const swCode = `
-    const CACHE = 'poker-trainer-v4';
-    self.addEventListener('install', e => {
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(
-        caches.keys().then(keys =>
-          Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-        ).then(() => self.clients.claim())
-      );
-    });
-    // Network-first for HTML so code updates always reach the user;
-    // cache-first for everything else (images, fonts, etc.).
-    self.addEventListener('fetch', e => {
-      if(e.request.method !== 'GET') return;
-      const isHTML = e.request.mode === 'navigate' ||
-                     (e.request.headers.get('accept') || '').includes('text/html');
-      e.respondWith(
-        caches.open(CACHE).then(cache => {
-          if(isHTML){
-            return fetch(e.request).then(resp => {
-              if(resp && resp.status === 200){ cache.put(e.request, resp.clone()); }
-              return resp;
-            }).catch(() => cache.match(e.request, {ignoreSearch:true}));
-          }
-          return cache.match(e.request, {ignoreSearch:true}).then(hit => {
-            const network = fetch(e.request).then(resp => {
-              if(resp && resp.status === 200 && resp.type === 'basic'){
-                cache.put(e.request, resp.clone());
-              }
-              return resp;
-            }).catch(() => hit);
-            return hit || network;
-          });
-        })
-      );
-    });
-  `;
-  const blob = new Blob([swCode], {type: 'application/javascript'});
-  const url = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(url, {scope: './'}).catch(() => {});
+
+  // The first worker to claim the page is an install, not an update, and must
+  // not reload. Every claim after that is a new version taking over. Tracked
+  // as it happens rather than snapshotted at startup: the session that does
+  // the install starts uncontrolled, and snapshotting that left it never
+  // reloading again for the rest of its life.
+  let hasController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(!hasController){ hasController = true; return; }
+    if(reloading) return;
+    reloading = true;
+    location.reload();
+  });
+
+  navigator.serviceWorker.register('./sw.js?v=' + encodeURIComponent(BUILD), {scope: './'})
+    .then(reg => {
+      swRegistration = reg;
+      // An installed app can sit open for days, so look for a new version
+      // every time it comes back to the foreground.
+      document.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    })
+    .catch(err => console.error('Service worker registration failed:', err));
+}
+
+function checkForUpdate(){
+  const btn = document.getElementById('updateBtn');
+  const desc = document.getElementById('buildDesc');
+  const done = msg => {
+    if(desc) desc.textContent = msg;
+    if(btn){ btn.disabled = false; btn.textContent = 'Check'; }
+  };
+  if(!swRegistration){
+    done(BUILD + (location.protocol === 'file:' ? ' · needs to be served over http' : ' · no service worker'));
+    return;
+  }
+  if(btn){ btn.disabled = true; btn.textContent = 'Checking…'; }
+  swRegistration.update()
+    .then(() => setTimeout(() => {
+      // A worker that found an update installs and takes over, which reloads
+      // the page. Still being here with nothing waiting means we are current.
+      if(swRegistration.waiting){
+        swRegistration.waiting.postMessage('skip-waiting');
+        done('Updating…');
+      }else{
+        done(BUILD + ' · up to date');
+      }
+    }, 800))
+    .catch(() => done(BUILD + ' · could not check'));
 }
 
 /* ============================================================
@@ -3009,7 +3254,6 @@ function registerSW(){
 ============================================================ */
 refreshTableSize();
 rebuildRangeSets();
-installManifest();
 registerSW();
 updateHomeStats();
 nav('home');
