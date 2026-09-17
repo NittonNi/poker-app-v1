@@ -8,7 +8,8 @@
 const VERSION = new URL(self.location).searchParams.get('v') || 'dev';
 const CACHE = 'poker-trainer-' + VERSION;
 const PAGE = './index.html';
-const SHELL = ['./', PAGE, './manifest.webmanifest', './icon-192.png'];
+const RANGES = './ranges.json';
+const SHELL = ['./', PAGE, RANGES, './manifest.webmanifest', './icon-192.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -36,25 +37,29 @@ self.addEventListener('message', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if(req.method !== 'GET') return;
-  if(new URL(req.url).origin !== self.location.origin) return;
+  const url = new URL(req.url);
+  if(url.origin !== self.location.origin) return;
 
   const isPage = req.mode === 'navigate' ||
                  (req.headers.get('accept') || '').includes('text/html');
+  const isRanges = url.pathname.endsWith('/ranges.json');
 
-  if(isPage){
-    // The page always comes from the network, bypassing the HTTP cache, so a
-    // deploy is never hidden behind the max-age GitHub Pages puts on it. The
-    // cached copy is only there for being offline.
+  if(isPage || isRanges){
+    // The page and the range charts always come from the network, bypassing
+    // the HTTP cache, so a deploy (or an edited chart) is never hidden behind
+    // the max-age GitHub Pages puts on them. The cached copy is only there for
+    // being offline.
+    const key = isPage ? PAGE : RANGES;
     e.respondWith(
       fetch(new Request(req.url, {cache: 'no-store'}))
         .then(resp => {
           if(resp && resp.ok){
             const copy = resp.clone();
-            caches.open(CACHE).then(c => c.put(PAGE, copy)).catch(() => {});
+            caches.open(CACHE).then(c => c.put(key, copy)).catch(() => {});
           }
           return resp;
         })
-        .catch(() => caches.match(PAGE, {ignoreSearch: true})
+        .catch(() => caches.match(key, {ignoreSearch: true})
           .then(hit => hit || caches.match(req, {ignoreSearch: true})))
     );
     return;
