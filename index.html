@@ -97,6 +97,9 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 .hero{text-align:center;padding:var(--sp2) var(--sp2) var(--sp1)}
 .hero h1{margin:0;font-size:var(--t-3xl);font-weight:800;letter-spacing:.3px;color:var(--text)}
 .hero p{margin:var(--sp1) 0 0;font-size:var(--t-base);color:var(--text-dim)}
+/* --fold on --surface (#fff): 5.4:1. On the 10% red tint over --bg it was 4.25:1, under AA. */
+.ranges-error{margin:0;padding:var(--sp3) var(--sp4);border-radius:var(--radius-sm);background:var(--surface);border:1px solid rgba(255,59,48,.35);color:var(--fold);font-size:var(--t-md);line-height:1.4;user-select:text;-webkit-user-select:text}
+.ranges-error[hidden]{display:none}
 
 .module-card{position:relative;background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--radius);padding:var(--sp4) 18px;text-align:left;box-shadow:var(--shadow);min-height:108px;display:flex;flex-direction:column;justify-content:space-between;width:100%;transition:transform .14s var(--ease-out),box-shadow .14s ease;color:var(--text-on-light)}
 .module-card:active{transform:scale(.975);box-shadow:var(--shadow-light)}
@@ -532,6 +535,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
         <h1>Train Smarter</h1>
         <p>Drill ranges, math, and postflop intuition.</p>
       </div>
+      <p class="ranges-error" id="rangesError" role="alert" hidden></p>
 
       <button class="module-card" onclick="startModule1()">
         <div>
@@ -823,7 +827,7 @@ input{font-family:inherit;font-size:inherit;color:inherit;background:none;border
 /* Bump this to ship an update. It is the service worker's version too (it
    goes on the registration URL), so a new value makes the browser install a
    fresh worker, drop the old cache and reload whatever is open. */
-const BUILD = '2026.09.12';
+const BUILD = '2026.09.17';
 
 /* ============================================================
    CONSTANTS
@@ -863,158 +867,56 @@ function notationFromIdx(i, j){
 }
 
 /* ============================================================
-   RANGES — 6-max and full ring (9-max)
+   RANGES — every chart lives in ranges.json: one 13×13 grid per seat and
+   branch, per table size, one letter per cell (R raise, C call, F fold,
+   A all-in). Branches: RFI, vs_open_X (X opened before you), vs_3bet_X
+   (you opened and X 3-bet), vs_4bet_X (you 3-bet X's open and X 4-bet).
+   The terminal trainer in rejilla/ reads the same file.
 ============================================================ */
-const RANGE_DEF_6MAX = {
-  UTG: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55',
-    'AKs','AQs','AJs','ATs','KQs','KJs','KTs','QJs','QTs','JTs',
-    'T9s','98s','87s','76s',
-    'AKo','AQo','AJo','KQo'], call: [] },
-  MP: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44',
-    'AKs','AQs','AJs','ATs','A5s','A4s',
-    'KQs','KJs','KTs','QJs','QTs','JTs',
-    'T9s','98s','87s','76s','65s',
-    'AKo','AQo','AJo','KQo'], call: [] },
-  CO: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
-    'AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
-    'KQs','KJs','KTs','K9s','QJs','QTs','Q9s','JTs','J9s','T9s','T8s','98s','87s','76s','65s','54s',
-    'AKo','AQo','AJo','ATo','KQo','KJo','KTo','QJo','QTo','JTo'], call: [] },
-  BTN: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
-    'AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
-    'KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s',
-    'QJs','QTs','Q9s','Q8s','Q7s','Q6s','J9s','J8s','J7s','T8s','T7s','97s','86s','75s','64s',
-    'JTs','T9s','98s','87s','76s','65s','54s',
-    'AKo','AQo','AJo','ATo','A9o','KQo','KJo','KTo','K9o','QJo','QTo','Q9o','JTo','J9o','T9o'], call: [] },
-  SB: { raise: ['AA','KK','QQ','JJ','TT','99','88','77',
-    'AKs','AQs','AJs','ATs','A5s','A4s','KQs','KJs','KTs','QJs','QTs','JTs',
-    'AKo','AQo'],
-    call: ['66','55','44','33','22',
-      'A9s','A8s','A7s','A6s','A3s','A2s','K9s','K8s','Q9s','J9s','T9s','98s','87s','76s','65s','54s',
-      'AJo','ATo','KQo','KJo','KTo','QJo','QTo','JTo'] },
-  BB: { raise: ['AA','KK','QQ','JJ','AKs','AKo'],
-    call: ['TT','99','88','77','66','55','44','33','22',
-      'AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
-      'KQs','KJs','KTs','K9s','K8s','QJs','QTs','Q9s','JTs','J9s','T9s','T8s','98s','87s','76s','65s','54s',
-      'AQo','AJo','ATo','A9o','KQo','KJo','KTo','QJo','QTo','JTo','T9o'] }
-};
+let RANGES = null;
+let rangesReady = null;  // the load started at init
+// The 6-max seat this app calls MP is HJ in ranges.json.
+const JSON_SEAT = {MP: 'HJ'};
+const BRANCH_PREFIX = {vsOpen: 'vs_open_', vs3bet: 'vs_3bet_', vs4bet: 'vs_4bet_'};
+const DECISION_OF = {R: 'raise', A: 'raise', C: 'call', F: 'fold'};
 
-const RANGE_DEF_9MAX = {
-  UTG: { raise: ['AA','KK','QQ','JJ','TT','99','88',
-    'AKs','AQs','AJs','KQs',
-    'AKo'], call: [] },
-  'UTG+1': { raise: ['AA','KK','QQ','JJ','TT','99','88','77',
-    'AKs','AQs','AJs','ATs','KQs','KJs',
-    'AKo','AQo'], call: [] },
-  'UTG+2': { raise: ['AA','KK','QQ','JJ','TT','99','88','77',
-    'AKs','AQs','AJs','ATs','KQs','KJs','QJs',
-    'AKo','AQo'], call: [] },
-  LJ: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55',
-    'AKs','AQs','AJs','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s',
-    'AKo','AQo','AJo','KQo'], call: [] },
-  HJ: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44',
-    'AKs','AQs','AJs','ATs','A5s','A4s',
-    'KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s','76s',
-    'AKo','AQo','AJo','KQo'], call: [] },
-  CO: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
-    'AKs','AQs','AJs','ATs','A9s','A8s','A5s','A4s','A3s','A2s',
-    'KQs','KJs','KTs','K9s','QJs','QTs','Q9s','JTs','J9s','T9s','T8s','98s','87s','76s','65s',
-    'AKo','AQo','AJo','ATo','KQo','KJo','QJo'], call: [] },
-  BTN: { raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
-    'AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
-    'KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s',
-    'QJs','QTs','Q9s','Q8s','J9s','J8s','T8s','T7s','97s','86s','75s','64s',
-    'JTs','T9s','98s','87s','76s','65s','54s',
-    'AKo','AQo','AJo','ATo','KQo','KJo','KTo','QJo','QTo','JTo'], call: [] },
-  SB: { raise: ['AA','KK','QQ','JJ','TT','99','88',
-    'AKs','AQs','AJs','ATs','A5s','A4s','KQs','KJs','QJs','JTs',
-    'AKo','AQo'],
-    call: ['77','66','55','44','33','22',
-      'A9s','A8s','A7s','A6s','A3s','A2s','KTs','K9s','QTs','Q9s','T9s','98s','87s','76s','65s','54s',
-      'AJo','ATo','KQo','KJo','QJo'] },
-  BB: { raise: ['AA','KK','QQ','AKs','AKo'],
-    call: ['JJ','TT','99','88','77','66','55','44','33','22',
-      'AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
-      'KQs','KJs','KTs','K9s','QJs','QTs','Q9s','JTs','J9s','T9s','T8s','98s','87s','76s','65s','54s',
-      'AQo','AJo','ATo','KQo','KJo','KTo','QJo','QTo','JTo'] }
-};
+function loadRanges(){
+  return fetch('./ranges.json', {cache: 'no-store'})
+    .then(r => { if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(data => { RANGES = data; });
+}
 
-/* ============================================================
-   RANGES — vs Open (3-bet/call/fold), vs 3-bet (4-bet/call/fold),
-   vs 4-bet (5-bet/call/fold). Tiered by position group rather than
-   the exact opener's seat — a deliberate simplification (this is a
-   trainer, not a solver), kept internally consistent with the
-   RFI charts above and with the Glossary's own description of
-   3-bet/4-bet/5-bet ranges.
-============================================================ */
-const VS_OPEN_TIERS = {
-  EARLY_MID: {
-    raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
-    call: ['TT','99','88','77','66','55','AJs','ATs','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','87s','AQo','AJo']
-  },
-  LATE: {
-    raise: ['AA','KK','QQ','JJ','TT','AKs','AKo','AQs','AQo','AJs','KQs','A5s','A4s','A3s','K9s','Q9s','JTs','T9s','98s'],
-    call: ['99','88','77','66','55','44','ATs','A9s','A8s','A7s','A6s','A2s','KJs','KTs','K8s','QJs','QTs','J9s','T8s','87s','76s','65s','54s','AJo','ATo','KQo','KJo']
+function showRangesError(){
+  const box = document.getElementById('rangesError');
+  box.textContent = 'The range charts (ranges.json) could not be loaded, so the range drill and the explorer are off. Check the file and reload.';
+  box.hidden = false;
+  box.scrollIntoView({block: 'nearest'});
+}
+
+// A tap that arrives before the charts runs as soon as they are in; if they
+// never arrive, it points at the notice instead.
+function whenRangesReady(fn){
+  if(rangesReady) rangesReady.then(fn, showRangesError);
+}
+
+// The grid for a spot. Without the opponent's seat (the explorer shows one
+// chart per seat), the first opponent that has a chart, in seat order.
+function rangeGrid(position, scenario, facing){
+  const table = RANGES && RANGES[currentTableSize() === 'full' ? '9max' : '6max'];
+  const branches = table && table[JSON_SEAT[position] || position];
+  if(!branches) return null;
+  if(scenario === 'open') return branches.RFI || null;
+  for(const seat of (facing ? [facing] : POSITIONS)){
+    const grid = branches[BRANCH_PREFIX[scenario] + (JSON_SEAT[seat] || seat)];
+    if(grid) return grid;
   }
-};
+  return null;
+}
 
-const VS_3BET_TIERS = {
-  EARLY: {
-    raise: ['AA','KK','QQ','AKs','AKo'],
-    call: ['JJ','TT','99','AQs','AQo','AJs','KQs']
-  },
-  LATE: {
-    raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs','A5s','A4s'],
-    call: ['TT','99','88','ATs','AJs','KQs','KJs','QJs','AQo','KQo']
-  },
-  BLIND: {
-    raise: ['AA','KK','QQ','AKs','AKo'],
-    call: ['JJ','TT','99','AQs','AJs','KQs','AQo']
-  }
-};
-
-const VS_4BET_UNIVERSAL = {
-  raise: ['AA','KK','AKs','AKo'],
-  call: ['QQ','JJ']
-};
-
-/* Folded to the small blind is a steal spot against one player, not an
-   early-position open: the RANGE_DEF entry for SB is its 3-bet/flat range
-   against an opener, so using that as an opening range had SB opening
-   tighter than UTG. */
-const SB_STEAL_RANGE = {
-  raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','33','22',
-    'AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s',
-    'KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s',
-    'QJs','QTs','Q9s','Q8s','Q7s','Q6s','Q5s','Q4s',
-    'JTs','J9s','J8s','J7s','J6s',
-    'T9s','T8s','T7s','T6s',
-    '98s','97s','96s','87s','86s','85s','76s','75s','65s','64s','54s',
-    'AKo','AQo','AJo','ATo','A9o','A8o','A7o','A6o','A5o','A4o','A3o','A2o',
-    'KQo','KJo','KTo','K9o','K8o','K7o',
-    'QJo','QTo','Q9o','Q8o','JTo','J9o','J8o','T9o','T8o','98o'],
-  call: []
-};
-
-// Positions that can legally reach each scenario. BB can never open (folded
-// to BB just ends the hand), and the very first seat to act can never be
-// facing anything before it.
-function canOpenPosition(p){ return p !== 'BB'; }
-function canFaceBeforePosition(p){ return p !== POSITIONS[0]; }
+// Seats that have a chart for the scenario: a branch missing from
+// ranges.json is simply not drilled.
 function applicablePositions(scenario){
-  if(scenario === 'open' || scenario === 'vs3bet') return POSITIONS.filter(canOpenPosition);
-  return POSITIONS.filter(canFaceBeforePosition); // vsOpen, vs4bet
-}
-
-function vsOpenTier(position){
-  if(position === 'SB') return 'SB';
-  if(position === 'BB') return 'BB';
-  if(['HJ','CO','BTN'].includes(position)) return 'LATE';
-  return 'EARLY_MID';
-}
-function vs3betTier(position){
-  if(position === 'SB') return 'BLIND';
-  if(['HJ','CO','BTN'].includes(position)) return 'LATE';
-  return 'EARLY';
+  return POSITIONS.filter(p => rangeGrid(p, scenario));
 }
 
 const SCENARIO_META = {
@@ -1031,50 +933,16 @@ function actionLabel(decision, meta){
   return 'Fold';
 }
 
-let RANGE_DEF = RANGE_DEF_6MAX;
-let SCENARIO_SETS = {};
-function buildScenarioSets(){
-  const open = {};
-  applicablePositions('open').forEach(pos => {
-    const def = pos === 'SB' ? SB_STEAL_RANGE : RANGE_DEF[pos];
-    open[pos] = { raise: new Set(def.raise), call: new Set() };
-  });
-
-  const vsOpen = {};
-  applicablePositions('vsOpen').forEach(pos => {
-    const tier = vsOpenTier(pos);
-    const def = (tier === 'SB' || tier === 'BB') ? RANGE_DEF[tier] : VS_OPEN_TIERS[tier];
-    vsOpen[pos] = { raise: new Set(def.raise), call: new Set(def.call) };
-  });
-
-  const vs3bet = {};
-  applicablePositions('vs3bet').forEach(pos => {
-    const def = VS_3BET_TIERS[vs3betTier(pos)];
-    vs3bet[pos] = { raise: new Set(def.raise), call: new Set(def.call) };
-  });
-
-  const vs4bet = {};
-  applicablePositions('vs4bet').forEach(pos => {
-    vs4bet[pos] = { raise: new Set(VS_4BET_UNIVERSAL.raise), call: new Set(VS_4BET_UNIVERSAL.call) };
-  });
-
-  SCENARIO_SETS = { open, vsOpen, vs3bet, vs4bet };
+function idxFromNotation(hand){
+  const hi = RANKS.indexOf(hand[0]), lo = RANKS.indexOf(hand[1]);
+  return hand[2] === 'o' ? [lo, hi] : [hi, lo];
 }
-function rebuildRangeSets(){
-  RANGE_DEF = currentTableSize() === 'full' ? RANGE_DEF_9MAX : RANGE_DEF_6MAX;
-  buildScenarioSets();
-}
-// Seed with 6-max defaults so the lookups are populated before state loads.
-// rebuildRangeSets() will run again at end-of-script init once state is ready.
-buildScenarioSets();
 
-function decisionFor(hand, position, scenario){
-  const sets = SCENARIO_SETS[scenario || 'open'];
-  const r = sets && sets[position];
-  if(!r) return 'fold';
-  if(r.raise.has(hand)) return 'raise';
-  if(r.call.has(hand)) return 'call';
-  return 'fold';
+function decisionFor(hand, position, scenario, facing){
+  const grid = rangeGrid(position, scenario || 'open', facing);
+  if(!grid) return 'fold';
+  const [i, j] = idxFromNotation(hand);
+  return DECISION_OF[grid[i][j]] || 'fold';
 }
 
 function rangeStats(position, scenario){
@@ -1407,6 +1275,7 @@ function endSession(which){
 }
 
 function startModule1(){
+  if(!RANGES){ whenRangesReady(startModule1); return; }
   session.m1History = [];
   session.sinceMilestone = 0;
   nav('m1');
@@ -1494,7 +1363,7 @@ function buildScript(scenario, heroPosition){
     return { steps: before.map(p => ({pos:p, action:'fold', verb:'folds'})), facing: null };
   }
   if(scenario === 'vsOpen'){
-    const opener = weightedPositionPick(before);
+    const opener = weightedPositionPick(before.filter(p => rangeGrid(heroPosition, 'vsOpen', p)));
     const steps = before.map(p => p === opener
       ? {pos:p, action:'raise', verb:'raises'}
       : {pos:p, action:'fold', verb:'folds'});
@@ -1502,7 +1371,7 @@ function buildScript(scenario, heroPosition){
   }
   if(scenario === 'vs3bet'){
     const pool = after.length ? after : POKER_ORDER.filter(p => p !== heroPosition);
-    const threeBettor = weightedPositionPick(pool);
+    const threeBettor = weightedPositionPick(pool.filter(p => rangeGrid(heroPosition, 'vs3bet', p)));
     const steps = before.map(p => ({pos:p, action:'fold', verb:'folds'}));
     steps.push({pos:heroPosition, action:'raise', verb:'raises', silent:true});
     steps.push({pos:threeBettor, action:'raise', verb:'3-bets'});
@@ -1510,7 +1379,7 @@ function buildScript(scenario, heroPosition){
   }
   // vs4bet: an earlier position opened, hero 3-bet (silently, already happened), opener 4-bets.
   const pool = before.length ? before : POKER_ORDER.filter(p => p !== heroPosition);
-  const opener = weightedPositionPick(pool);
+  const opener = weightedPositionPick(pool.filter(p => rangeGrid(heroPosition, 'vs4bet', p)));
   const steps = before.map(p => p === opener
     ? {pos:p, action:'raise', verb:'raises'}
     : {pos:p, action:'fold', verb:'folds'});
@@ -1526,8 +1395,8 @@ function newHandM1(){
   const scenario = pickM1Scenario();
   const positions = applicablePositions(scenario);
   const position = positions[cryptoRand(positions.length)];
-  const correct = decisionFor(hand, position, scenario);
   const script = buildScript(scenario, position);
+  const correct = decisionFor(hand, position, scenario, script.facing);
   session.current = {type:'m1', cards:[c1,c2], hand, position, scenario, correct, script};
   session.answered = false;
   renderM1();
@@ -1816,14 +1685,18 @@ function updateM1Live(){
 ============================================================ */
 let overlayCurrentPos = 'BTN';
 let overlayCurrentScenario = 'open';
+let overlayCurrentFacing = null;
 function openGridOverlay(){
   const cur = session.current;
   const scenario = (cur && cur.scenario) || 'open';
   const pos = (cur && cur.position) || overlayCurrentPos;
+  const facing = (cur && cur.script && cur.script.facing) || null;
   overlayCurrentPos = pos;
   overlayCurrentScenario = scenario;
+  overlayCurrentFacing = facing;
   const meta = SCENARIO_META[scenario];
-  document.getElementById('gridOverlayPos').textContent = pos + (scenario === 'open' ? '' : ' · ' + meta.label);
+  document.getElementById('gridOverlayPos').textContent =
+    pos + (scenario === 'open' ? '' : ' · ' + meta.label + (facing ? ' · ' + facing : ''));
   const legend = document.getElementById('gridOverlayLegend');
   if(legend){
     legend.innerHTML = '';
@@ -1833,7 +1706,7 @@ function openGridOverlay(){
   }
   const container = document.getElementById('overlayGridContainer');
   container.innerHTML = '';
-  container.appendChild(renderGridFor(pos, null, handleGridTap, null, scenario));
+  container.appendChild(renderGridFor(pos, null, handleGridTap, null, scenario, facing));
   document.getElementById('overlayHandInfo').textContent = 'Tap any cell to see its action.';
   document.getElementById('gridOverlay').classList.add('show');
 }
@@ -1842,7 +1715,7 @@ function handleGridTap(hand){
   const pos = overlayCurrentPos;
   const scenario = overlayCurrentScenario;
   const meta = SCENARIO_META[scenario];
-  const d = decisionFor(hand, pos, scenario);
+  const d = decisionFor(hand, pos, scenario, overlayCurrentFacing);
   const info = document.getElementById('overlayHandInfo');
   const label = actionLabel(d, meta).toUpperCase();
   info.innerHTML = `<span class="hand-label">${hand}</span> from <strong>${pos}</strong> → <strong style="color:var(--${d})">${label}</strong> <span class="cat-label">${handCategory(hand)}</span>`;
@@ -1857,12 +1730,12 @@ function closeOverlay(e, id){
   document.getElementById(id).classList.remove('show');
 }
 
-function renderGridFor(position, highlightHand, onCellTap, diffPosition, scenario){
+function renderGridFor(position, highlightHand, onCellTap, diffPosition, scenario, facing){
   const grid = el('div', {class:'range-grid'}, []);
   for(let i = 0; i < 13; i++){
     for(let j = 0; j < 13; j++){
       const h = notationFromIdx(i, j);
-      const d = decisionFor(h, position, scenario);
+      const d = decisionFor(h, position, scenario, facing);
       const cell = el('div', {class: 'range-cell ' + d}, [h]);
       if(h === highlightHand) cell.classList.add('highlight');
       if(diffPosition){
@@ -2244,6 +2117,7 @@ let rangeSel1 = 'BTN';
 let rangeSel2 = 'UTG';
 
 function openRangesScreen(){
+  if(!RANGES){ whenRangesReady(openRangesScreen); return; }
   rangeMode = 'single';
   rangeScenario = 'open';
   const applicable = applicablePositions(rangeScenario);
@@ -2628,7 +2502,6 @@ function setTableSize(size){
   if(size !== '6max' && size !== 'full') return;
   state.tableSize = size;
   refreshTableSize();
-  rebuildRangeSets();
   saveState();
   renderSettings();
   const applicable = applicablePositions(typeof rangeScenario === 'string' ? rangeScenario : 'open');
@@ -2639,10 +2512,9 @@ function setTableSize(size){
 function resetStats(){
   if(!confirm('Reset all stats? This cannot be undone.')) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-  // The reset also reverts tableSize, so the seat list and the range
-  // lookups have to be rebuilt or they stay on the old table size.
+  // The reset also reverts tableSize, so the seat list has to be rebuilt or
+  // it stays on the old table size.
   refreshTableSize();
-  rebuildRangeSets();
   const applicable = applicablePositions(rangeScenario);
   rangeSel1 = applicable[0];
   rangeSel2 = applicable[applicable.length - 1];
@@ -3253,10 +3125,10 @@ function checkForUpdate(){
    INIT
 ============================================================ */
 refreshTableSize();
-rebuildRangeSets();
 registerSW();
-updateHomeStats();
 nav('home');
+rangesReady = loadRanges();
+rangesReady.catch(showRangesError);
 
 document.addEventListener('touchmove', e => {
   if(e.touches.length > 1) e.preventDefault();
