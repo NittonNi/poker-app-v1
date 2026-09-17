@@ -59,6 +59,75 @@ seat. They are checked for internal consistency: a later seat opens a superset o
 an earlier one, a weaker pair is never played more aggressively than a stronger
 one, and a suited hand is never played weaker than the same offsuit hand.
 
+## Grid memorization (terminal)
+
+A separate trainer in `rejilla/` for learning the 13×13 charts by heart: not
+deciding single hands, but drawing any chart from memory and knowing exactly where
+each border is. Python 3.10+, standard library only, interface in Spanish.
+
+```bash
+python -m rejilla                                  # menu
+python -m rejilla repaso                           # mixed review, 20 questions
+python -m rejilla fronteras --pos CO --rama RFI -n 15
+python -m rejilla ver BTN RFI                      # just look at a chart
+```
+
+| Command | Exercise | What you answer |
+| --- | --- | --- |
+| `fronteras` | Borders (the main one) | "UTG, fila de la K, suited: ¿hasta dónde llega?" → `K9s`. Every row: pairs, and each suited and offsuit row. Charts with calls get one answer per action. |
+| `salto` | Suited/offsuit gap | Last suited and last offsuit of a row. The number of steps between them is scored too. |
+| `diferencial` | Between seats | The hands added from one opening seat to the next. Bigger jumps come up more, so CO→BTN is the most frequent. |
+| `identifica` | Name the chart | A painted chart with no name: say seat and branch. Any identical chart counts as right. |
+| `reloj` | In or out, against the clock | One key within 3 s (`d`/`f`, or `r c a f` when the chart has calls). The result is a map of your misses grouped by zone, not a percentage. |
+| `blanco` | Blank grid | Fill an empty grid with ranges (`22+ r`, `KQs-K9s raise`, `AKo c`). Then yours and the real one side by side with the misses marked, the hits, and the % your version plays against the real %. |
+
+`repaso` mixes them: borders 40 %, between seats 20 %, suited/offsuit gap 15 %,
+clock 15 % (5 hands at a time), name the chart 10 %. The blank grid is long, so it
+only runs on its own.
+
+**Writing hands.** In a border answer a single hand means that hand and everything
+above it (`K9s`); loose pieces go after it (`ATs+ A5s-A4s`); an empty row is
+`nada`. The `s`/`o` can be left out when the row already says it. `salir` ends the
+session (Esc on the clock).
+
+**Spaced repetition.** Leitner boxes on the triple (hand, seat, branch), not on the
+bare hand. A miss sends the card back to box 1 and it comes back a few questions
+later; two hits in a row move it up: box 1 is due the same day, box 2 the next day,
+then 3, 7 and 16 days. Every exercise that says something about specific cells feeds
+the boxes (naming the chart doesn't). Progress is saved after each answer in
+`~/.poker-trainer/rejilla.json`, outside the repo.
+
+**On exit.** Your three worst zones (seat · branch · row) and, per seat, the % you
+would play — your answers laid over the real chart — next to the chart's own %.
+
+Options: `--pos`, `--rama` (`RFI`, `vs_open`, `vs_3bet`, or a specific one such as
+`vs_open_CO`), `-n`, `--limite` (seconds on the clock), `--estado`, `--rangos`,
+`--sin-color` (or set `NO_COLOR`).
+
+Tests: `python -m unittest discover -s rejilla/tests -t .`
+
+## `ranges.json`
+
+One 13×13 grid per (seat, branch), per table size. Rows and columns go A→2, pairs
+on the diagonal, suited above it, offsuit below; one letter per cell: `R` raise,
+`C` call, `F` fold, `A` all-in.
+
+```json
+{ "version": 1,
+  "6max": { "BTN": { "RFI": ["RRRRRRRRRRRRR", "..."], "vs_open_CO": ["..."] } } }
+```
+
+| Branch | Spot |
+| --- | --- |
+| `RFI` | first in |
+| `vs_open_X` | X opened before you |
+| `vs_3bet_X` | you opened and X 3-bet |
+| `vs_4bet_X` | you 3-bet X's open and X 4-bet |
+
+A branch that isn't in the file isn't shown anywhere. The file is checked when it is
+loaded (13×13, valid letters, and seats that can actually be in that spot). The
+6-max seat the app shows as `MP` is `HJ` in the file.
+
 ## Tech
 
 - Pure HTML/CSS/JS, no frameworks, no build step — the whole app is `index.html`.
@@ -116,6 +185,17 @@ Then open `http://localhost:8080`.
 ├── icon-512.png
 ├── icon-512-maskable.png
 ├── apple-touch-icon.png
+├── ranges.json               # every chart, 13×13 per seat and branch
+├── rejilla/                  # terminal trainer for memorizing the charts
+│   ├── __main__.py           # menu and commands
+│   ├── rangos.py             # loads and checks ranges.json
+│   ├── manos.py              # hand notation, rows, ranges like KQs-K9s
+│   ├── analisis.py           # grading, without screen or disk
+│   ├── leitner.py            # spaced repetition, saved to disk
+│   ├── pantalla.py           # ASCII grid with a colour per action
+│   ├── informe.py            # end-of-session report
+│   ├── ejercicios/           # one module per exercise
+│   └── tests/
 ├── README.md
 └── .gitignore
 ```
